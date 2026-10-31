@@ -32,7 +32,7 @@ CITIES = {
  "Tabuk":("تبوك",28.3838,36.5550),"Taif":("الطائف",21.2703,40.4158),
  "Jazan":("جازان",16.8892,42.5511),"Najran":("نجران",17.5650,44.2289),
  "AlBaha":("الباحة",20.0129,41.4677),"Sakaka":("سكاكا",29.9697,40.2064),
- "Arar":("عرعر",30.9753,41.0381)
+ "Arar":("عرعر",30.9753,41.0381), "AlKhobar":("الخبر",26.2172,50.1971)
 }
 UA = "SaudiAI-NewsBot/1.0 (+https://abud3d.github.io/news/)"
 def get(url, timeout=12):
@@ -128,7 +128,7 @@ def merge(old, new, limit=50):
 try:
  with open(OUT,encoding="utf-8") as f: previous=json.load(f)
 except Exception: previous={"categories":{},"weather":{}}
-result={"schema":1,"updated_at":datetime.now(timezone.utc).isoformat(),"categories":{},"weather":{}}
+result={"schema":1,"updated_at":datetime.now(timezone.utc).isoformat(),"categories":{},"weather":{},"weather_news":{}}
 errors=[]
 def category(key, fn):
  old=previous.get("categories",{}).get(key,{})
@@ -150,6 +150,17 @@ for code,city in CITIES.items():
  except Exception as e:
   if old: result["weather"][code]=old
   errors.append("weather "+code+": "+str(e))
+
+# City-specific weather headlines from Google News RSS; keep the previous headlines if a city feed fails.
+for code,city in CITIES.items():
+ name=city[0]
+ old=previous.get("weather_news",{}).get(code,{})
+ try:
+  fresh=fetch_google(f'"{name}" طقس OR "حالة الطقس" {name}')
+  result["weather_news"][code]={"items":merge(old.get("items",[]),fresh),"updated_at":result["updated_at"],"status":"ok" if fresh else "ok_empty","new_items":len(fresh)}
+ except Exception as e:
+  result["weather_news"][code]={"items":old.get("items",[]),"updated_at":old.get("updated_at",""),"status":"stale" if old.get("items") else "unavailable","error":str(e)[:180]}
+  errors.append("weather news "+code+": "+str(e))
 result["errors"]=errors
 with open(OUT,"w",encoding="utf-8") as f: json.dump(result,f,ensure_ascii=False,indent=2)
 print("Updated",len(result["categories"]),"feeds and",len(result["weather"]),"weather locations; errors:",len(errors))
