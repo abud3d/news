@@ -41,7 +41,7 @@ def get(url, timeout=25):
   return r.read()
 
 def clean(s):
- return re.sub(r"\\s+"," ", re.sub(r"<[^>]+>"," ",unescape(s or ""))).strip()
+ return re.sub(r"\s+"," ", re.sub(r"<[^>]+>"," ",unescape(s or ""))).strip()
 
 def parse_rss(url, source_override=None):
  root=ET.fromstring(get(url))
@@ -89,7 +89,7 @@ def key_for_url(x):
 def merge(old, new, limit=50):
  seen=set(); out=[]
  for x in new+old:
-  k=key_for_url(x) or re.sub(r"\\W+","",x.get("title","").lower())
+  k=key_for_url(x) or re.sub(r"\W+","",x.get("title","").lower())
   if not k or k in seen: continue
   seen.add(k); out.append(x)
  return out[:limit]
