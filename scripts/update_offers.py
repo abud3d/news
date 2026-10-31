@@ -62,7 +62,8 @@ def main():
   seen.add(key)
   rows.append({"title":store+" تطلق عرض: "+title,"url":url,"source":"SnapFlyer · "+store,
    "description":txt[:500],"date":datetime.now(timezone.utc).isoformat(),"category":"عروض المتاجر"})
- if not rows: raise RuntimeError("لم أتعرف على روابط نشرات العروض في صفحة SnapFlyer؛ احتفظنا بالبيانات السابقة")\n print("SnapFlyer links scanned:",len(p.rows),"matching active flyers:",len(rows))
+ if not rows: raise RuntimeError("لم أتعرف على روابط نشرات العروض في صفحة SnapFlyer؛ احتفظنا بالبيانات السابقة")
+ print("SnapFlyer links scanned:",len(p.rows),"matching active flyers:",len(rows))
  # Keep currently listed flyers only; listing page is filtered to active flyers.
  result={"updated_at":datetime.now(timezone.utc).isoformat(),"source_url":SOURCE,"items":rows[:100]}
  os.makedirs(os.path.dirname(OUT),exist_ok=True)
