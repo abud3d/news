@@ -167,7 +167,9 @@ category("HACKER_NEWS",fetch_hacker)
 def refresh_weather(code, city):
  old=previous.get("weather",{}).get(code)
  try: return ("weather",code,fetch_weather(city),None)
- except Exception as e: return ("weather",code,old,str(e))
+ except Exception as e:
+  fallback=old or {"title":f"طقس {city[0]}: غير متاح مؤقتاً","url":"https://open-meteo.com/","source":"Open-Meteo","date":"","description":"تعذر جلب حالة الطقس لهذه المدينة في آخر دورة تحديث.","status":"unavailable"}
+  return ("weather",code,fallback,str(e))
 
 def refresh_city_feed(kind, code, query):
  old=previous.get(kind,{}).get(code,{})
