@@ -20,7 +20,7 @@ a{color:inherit;text-decoration:none}.wrap{max-width:1180px;margin:auto;padding:
 footer{border-top:1px solid var(--line);margin-top:35px;padding:22px 0 30px;color:var(--muted);font-size:11px}.cities-title{font-size:13px;color:var(--muted);margin:0 0 7px}
 @media(max-width:800px){.layout{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.toprow{padding:10px 0;align-items:flex-start}.tools{justify-content:flex-end}.datebox{display:none}.prayer{margin-top:12px}.story{grid-template-columns:25px minmax(0,1fr)}.story .open{display:none}}
 @media(max-width:480px){.wrap{padding:0 12px}.brand strong{font-size:19px}.logo{width:37px;height:37px}.side{grid-template-columns:1fr}.prayer strong{font-size:16px}.countdown{font-size:14px}.story h3{font-size:14px}}
-</style>
+ .offers-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}.offer-card{display:block;padding:15px;background:var(--panel);border:1px solid var(--line);border-radius:13px}.offer-card:hover{border-color:#6c8050}.offer-card strong{display:block;color:var(--olive2);font-size:14px;margin-bottom:5px}.offer-card span{display:block;color:var(--muted);font-size:12px}.offer-stores{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}.offer-stores span{border:1px solid var(--line);border-radius:8px;padding:5px 9px;color:#cbd3c1;font-size:11px}</style>
 </head>
 <body>
 <header class="topbar"><div class="wrap toprow">
@@ -35,7 +35,7 @@ footer{border-top:1px solid var(--line);margin-top:35px;padding:22px 0 30px;colo
 <section class="prayer"><div><div class="prayerlabel">الصلاة القادمة · <span id="prayerCity">الرياض</span></div><strong id="nextPrayer">جارٍ جلب مواقيت الصلاة…</strong><div class="sub" id="prayerTime">حسب تقويم أم القرى</div></div><div class="countdown" id="remaining">--:--:--</div></section>
 <div class="section-head"><h2>الأقسام الرئيسية</h2><p>اختر الموضوع لمتابعة أخباره</p></div>
 <nav class="chips" id="categories">
-<button class="chip active" data-q="Saudi Arabia news">الرئيسية</button><button class="chip" data-q="Saudi Arabia artificial intelligence">ذكاء اصطناعي</button><button class="chip" data-q="Saudi Arabia technology">تقنية</button><button class="chip" data-q="Saudi Arabia economy">اقتصاد</button><button class="chip" data-q="Saudi Arabia startups">شركات ناشئة</button><button class="chip" data-q="السعودية سياحة">سياحة</button><button class="chip" data-q="السعودية تعليم">تعليم</button><button class="chip" data-q="وظائف السعودية وظائف شاغرة توظيف">وظائف</button><button class="chip" data-q="السعودية صحة">صحة</button><button class="chip" data-q="السعودية طقس">طقس</button><button class="chip" data-q="العالم أخبار">عالمي</button><button class="chip" data-q="عربي أخبار">عربي</button><button class="chip" data-q="Hacker News technology startups">هاكر نيوز</button><button class="chip" data-cyber="1">الأمن السيبراني</button><button class="chip" data-sport="1">⚽ رياضة</button>
+<button class="chip active" data-q="Saudi Arabia news">الرئيسية</button><button class="chip" data-q="Saudi Arabia artificial intelligence">ذكاء اصطناعي</button><button class="chip" data-q="Saudi Arabia technology">تقنية</button><button class="chip" data-q="Saudi Arabia economy">اقتصاد</button><button class="chip" data-q="Saudi Arabia startups">شركات ناشئة</button><button class="chip" data-q="السعودية سياحة">سياحة</button><button class="chip" data-q="السعودية تعليم">تعليم</button><button class="chip" data-q="وظائف السعودية وظائف شاغرة توظيف">وظائف</button><button class="chip" data-q="السعودية صحة">صحة</button><button class="chip" data-q="السعودية طقس">طقس</button><button class="chip" data-q="العالم أخبار">عالمي</button><button class="chip" data-q="عربي أخبار">عربي</button><button class="chip" data-q="Hacker News technology startups">هاكر نيوز</button><button class="chip" data-cyber="1">الأمن السيبراني</button><button class="chip" data-sport="1">⚽ رياضة</button><button class="chip" data-offers="1">🔥 عروض وتخفيضات</button>
 </nav>
 <div class="section-head"><h2>تابع الأخبار حسب المدينة</h2><p>اختر مدينة لتصفية الأخبار المحلية</p></div>
 <nav class="chips" id="cities">
@@ -48,7 +48,17 @@ footer{border-top:1px solid var(--line);margin-top:35px;padding:22px 0 30px;colo
 <div id="sportsContent" class="feed"><div class="empty">جارٍ تحميل بيانات الرياضة…</div></div>
 <div class="meta" style="margin-top:10px">المصدر: ESPN · قد تتأخر بعض بيانات المسابقات أو لا تتوفر.</div>
 </section>
-<div class="toolbar"><h1 id="feedTitle">أحدث الأخبار</h1><span id="updated">جارٍ تحديث الموجز…</span></div>
+<section id="offersPanel" class="card" style="display:none;margin:16px 0">
+<div class="section-head"><h2>🔥 عروض وتخفيضات المتاجر</h2><p>روابط مباشرة لصفحات العروض والكتالوجات</p></div>
+<div class="offers-grid">
+<a class="offer-card" href="https://www.amazon.sa/gp/goldbox" target="_blank" rel="noopener"><strong>أمازون السعودية</strong><span>العروض اليومية والصفقات</span></a>
+<a class="offer-card" href="https://www.noon.com/saudi-ar/deals/" target="_blank" rel="noopener"><strong>نون</strong><span>صفحة العروض والخصومات</span></a>
+<a class="offer-card" href="https://www.jarir.com/special-offers/" target="_blank" rel="noopener"><strong>مكتبة جرير</strong><span>العروض والخصومات الأسبوعية</span></a>
+<a class="offer-card" href="https://snapflyer.io/sa/" target="_blank" rel="noopener"><strong>كتالوج عروض المتاجر السعودية</strong><span>نشرات وعروض متاجر متعددة في مكان واحد</span></a>
+</div>
+<div class="offer-stores"><span>بنده</span><span>العثيم</span><span>كارفور</span><span>لولو</span><span>الدانوب</span><span>التميمي</span><span>بن داود</span><span>إكسترا</span><span>ساكو</span><span>ومتاجر أخرى</span></div>
+<div class="meta" style="margin-top:12px">تُفتح العروض لدى المتجر أو كتالوج العروض الخارجي. لا يجلب الموقع أسعار المنتجات أو يتحقق منها حالياً.</div>
+</section>\n<div class="toolbar"><h1 id="feedTitle">أحدث الأخبار</h1><span id="updated">جارٍ تحديث الموجز…</span></div>
 <div class="layout"><section><div class="feed" id="feed"><div class="empty">جارٍ تحميل الأخبار من المصادر…</div></div><button class="more-btn" id="loadMore" type="button" style="display:none">عرض المزيد من الأخبار</button></section>
 <aside class="side">
 <div class="card"><h3>عن ذكاء السعودية</h3><p>موجز عربي سريع يجمع أبرز الأخبار حسب الموضوع والمنطقة، مع رابط الخبر ومصدره الأصلي. ذكاء السعودية مشروع مستقل قيد التطوير.</p></div>
@@ -135,6 +145,7 @@ async function loadSports(){
   }
  }catch(err){box.innerHTML='<div class="empty">تعذر تحميل بيانات هذه المسابقة من المصدر حالياً. جرّب التحديث لاحقاً.</div>'}
 }
+$("categories").addEventListener("click",e=>{const b=e.target.closest("button[data-offers]");if(!b)return;document.querySelectorAll("#categories .chip").forEach(x=>x.classList.toggle("active",x===b));$("sportsPanel").style.display="none";$("offersPanel").style.display="block";$("feed").style.display="none";$("loadMore").style.display="none";$("feedTitle").textContent="";$("updated").textContent="";$("offersPanel").scrollIntoView({behavior:"smooth",block:"start"})});
 $("loadMore").addEventListener("click",()=>{visibleCount+=10;render()});
 $("categories").addEventListener("click",e=>{const b=e.target.closest("button[data-sport]");if(!b)return;document.querySelectorAll("#categories .chip").forEach(x=>x.classList.toggle("active",x===b));$("sportsPanel").style.display="block";$("feed").style.display="none";$("loadMore").style.display="none";$("feedTitle").textContent="";$("updated").textContent="";loadSports()});
 $("sportLeagues").addEventListener("click",e=>{const b=e.target.closest("button[data-league]");if(!b)return;currentLeague=b.dataset.league;document.querySelectorAll("#sportLeagues .chip").forEach(x=>x.classList.toggle("active",x===b));loadSports()});
