@@ -31,41 +31,29 @@ jobs:
       - name: Bump approximate site version for source updates
         if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
         run: |
-          changed="$(git diff-tree --no-commit-id --name-only -r HEAD)"
-          if echo "$changed" | grep -Eq '^(index\.html|article\.html|scripts/.*\.py|\.github/workflows/update-news\.yml)      - name: Fetch feeds and preserve previous data on failures
-        run: python scripts/update_news.py
-      - name: Fetch active store flyers from SnapFlyer
-        continue-on-error: true
-        run: python scripts/update_offers.py
-      - name: Commit updated cache
-        run: |
-          if git diff --quiet -- data/news.json data/offers.json index.html; then
-            echo "No news cache changes."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/news.json data/offers.json index.html
-          git commit -m "[skip ci] chore: refresh cached news and offers"
-          git pull --rebase origin main
-          git push
-; then
-            python scripts/bump_version.py
+          subject="$(git log -1 --format=%s)"
+          if echo "$subject" | grep -q '\[skip ci\]'; then
+            echo "Skipping version bump for an automated cache commit."
+          else
+            changed="$(git diff-tree --no-commit-id --name-only -r HEAD)"
+            if echo "$changed" | grep -Eq '^(index\.html|article\.html|scripts/.*\.py|\.github/workflows/update-news\.yml)$'; then
+              python scripts/bump_version.py
+            fi
           fi
       - name: Fetch feeds and preserve previous data on failures
         run: python scripts/update_news.py
       - name: Fetch active store flyers from SnapFlyer
         continue-on-error: true
         run: python scripts/update_offers.py
-      - name: Commit updated cache
+      - name: Commit updated cache and version
         run: |
-          if git diff --quiet -- data/news.json data/offers.json; then
-            echo "No news cache changes."
+          if git diff --quiet -- data/news.json data/offers.json index.html; then
+            echo "No cache or version changes."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/news.json data/offers.json
-          git commit -m "chore: refresh cached news and offers"
+          git add data/news.json data/offers.json index.html
+          git commit -m "[skip ci] chore: refresh cached news and offers"
           git pull --rebase origin main
           git push
