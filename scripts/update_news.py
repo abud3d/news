@@ -34,7 +34,7 @@ CITIES = {
  "Arar":("عرعر",30.9753,41.0381)
 }
 UA = "SaudiAI-NewsBot/1.0 (+https://abud3d.github.io/news/)"
-def get(url, timeout=25):
+def get(url, timeout=12):
  req=urllib.request.Request(url, headers={"User-Agent":UA,"Accept":"application/rss+xml, application/xml, application/json, text/xml"})
  with urllib.request.urlopen(req, timeout=timeout) as r:
   if r.status != 200: raise RuntimeError("HTTP "+str(r.status))
