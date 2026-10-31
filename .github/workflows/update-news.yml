@@ -6,7 +6,8 @@ on:
   push:
     branches: [main]
     paths:
-      - "scripts/update_news.py"\n      - "scripts/update_offers.py"
+      - "scripts/update_news.py"
+      - "scripts/update_offers.py"
       - ".github/workflows/update-news.yml"
 permissions:
   contents: write
@@ -28,7 +29,10 @@ jobs:
           python-version: "3.x"
       - name: Fetch feeds and preserve previous data on failures
         run: python scripts/update_news.py
-      - name: Fetch active store flyers from SnapFlyer\n        continue-on-error: true\n        run: python scripts/update_offers.py\n      - name: Commit updated cache
+      - name: Fetch active store flyers from SnapFlyer
+        continue-on-error: true
+        run: python scripts/update_offers.py
+      - name: Commit updated cache
         run: |
           if git diff --quiet -- data/news.json data/offers.json; then
             echo "No news cache changes."
