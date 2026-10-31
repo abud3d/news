@@ -42,8 +42,6 @@ def main():
   if r.status!=200: raise RuntimeError("SnapFlyer HTTP "+str(r.status))
   html=r.read(2_500_000).decode(r.headers.get_content_charset() or "utf-8","replace")
  p=Links(); p.feed(html)
- for link in p.rows[:90]:
-  print("DEBUG_LINK",link["href"],clean(link["text"])[:90])
  for link in p.rows:
   node=link.get("parent"); context=""
   while node is not None:
@@ -55,9 +53,9 @@ def main():
  for a in p.rows:
   url=urljoin(BASE,a["href"]); u=urlparse(url)
   if u.netloc!="snapflyer.io" or not u.path.startswith("/sa/"): continue
-  if any(x in u.path for x in ("/stores/","/products/","/offers","/categories/","/weekly")): continue
+  if any(x in u.path for x in ("/stores/","/products/","/categories/","/weekly")) or u.path.rstrip("/").endswith("/offers"): continue
   if len([part for part in u.path.split("/") if part]) < 4: continue
-  txt=clean(a["context"] or a["text"])
+  txt=clean(a["text"])
   if len(txt)<8 or not any(store in txt for store in STORES): continue
   store=next((s for s in STORES if s in txt),"متجر")
   # Card text usually includes store name followed by the flyer title.
