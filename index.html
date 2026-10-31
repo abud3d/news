@@ -116,7 +116,7 @@ async function loadSports(){
     : "دوري أبطال آسيا للنخبة الهلال الأهلي الاتحاد أخبار";
    const items=cachedCategory(currentLeague==="ksa.1"?"SPORT_KSA":"SPORT_AFC");
    if(!items.length){box.innerHTML='<div class="empty">لا توجد أخبار رياضية متاحة حالياً لهذه المسابقة.</div>';return}
-   box.innerHTML=items.map((a,i)=>'<article class="story"><div class="rank">'+String(i+1).padStart(2,"0")+'</div><div><h3><a href="'+esc(articleUrl(a))+'">'+esc(a.title)+'</a></h3><div class="meta"><span class="tag">'+esc(a.source||"الناشر الأصلي")+'</span><span>'+dateLabel(a.date)+'</span></div>'</div></article>').join("")
+   box.innerHTML=items.map((a,i)=>'<article class="story"><div class="rank">'+String(i+1).padStart(2,"0")+'</div><div><h3><a href="'+esc(articleUrl(a))+'">'+esc(a.title)+'</a></h3><div class="meta"><span class="tag">'+esc(a.source||"الناشر الأصلي")+'</span><span>'+dateLabel(a.date)+'</span></div></div></article>').join("")
   }else if(sportView==="table"){
    const r=await fetch("https://site.api.espn.com/apis/v2/sports/soccer/"+currentLeague+"/standings");
    if(!r.ok)throw Error("standings");const j=await r.json();
