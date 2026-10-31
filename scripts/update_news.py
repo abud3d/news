@@ -2,6 +2,7 @@
 import json, os, re, time, urllib.parse, urllib.request, urllib.error, xml.etree.ElementTree as ET
 from html.parser import HTMLParser
 from datetime import datetime, timezone
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from html import unescape
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -33,6 +34,24 @@ CITIES = {
  "Jazan":("جازان",16.8892,42.5511),"Najran":("نجران",17.5650,44.2289),
  "AlBaha":("الباحة",20.0129,41.4677),"Sakaka":("سكاكا",29.9697,40.2064),
  "Arar":("عرعر",30.9753,41.0381), "AlKhobar":("الخبر",26.2172,50.1971)
+}
+CITY_NEWS_QUERIES = {
+ "Riyadh":'"الرياض" السعودية أخبار',
+ "Buraydah":'"القصيم" OR "بريدة" السعودية أخبار',
+ "Hail":'"حائل" السعودية أخبار',
+ "Jeddah":'"جدة" السعودية أخبار',
+ "Makkah":'"مكة المكرمة" OR "مكة" السعودية أخبار',
+ "Madinah":'"المدينة المنورة" OR "المدينة" السعودية أخبار',
+ "Dammam":'"الدمام" OR "المنطقة الشرقية" السعودية أخبار',
+ "Abha":'"أبها" OR "عسير" السعودية أخبار',
+ "Tabuk":'"تبوك" السعودية أخبار',
+ "Taif":'"الطائف" السعودية أخبار',
+ "Jazan":'"جازان" السعودية أخبار',
+ "Najran":'"نجران" السعودية أخبار',
+ "AlBaha":'"الباحة" السعودية أخبار',
+ "Sakaka":'"سكاكا" OR "الجوف" السعودية أخبار',
+ "Arar":'"عرعر" OR "الحدود الشمالية" السعودية أخبار',
+ "AlKhobar":'"الخبر" OR "الظهران" السعودية أخبار',
 }
 UA = "SaudiAI-NewsBot/1.0 (+https://abud3d.github.io/news/)"
 def get(url, timeout=12):
@@ -128,7 +147,7 @@ def merge(old, new, limit=50):
 try:
  with open(OUT,encoding="utf-8") as f: previous=json.load(f)
 except Exception: previous={"categories":{},"weather":{}}
-result={"schema":1,"updated_at":datetime.now(timezone.utc).isoformat(),"categories":{},"weather":{},"weather_news":{}}
+result={"schema":1,"updated_at":datetime.now(timezone.utc).isoformat(),"categories":{},"weather":{},"city_news":{},"weather_news":{}}
 errors=[]
 def category(key, fn):
  old=previous.get("categories",{}).get(key,{})
@@ -144,23 +163,44 @@ for key,q in QUERIES.items():
  category(key, fetch_hacker if key=="HACKER_NEWS" else (lambda q=q: fetch_google(q)))
 category("__CYBER__",lambda:parse_rss("https://thehackernews.com/feeds/posts/default?alt=rss","The Hacker News"))
 category("HACKER_NEWS",fetch_hacker)
-for code,city in CITIES.items():
+# Refresh weather, city headlines and city-weather headlines concurrently.
+def refresh_weather(code, city):
  old=previous.get("weather",{}).get(code)
- try: result["weather"][code]=fetch_weather(city)
- except Exception as e:
-  if old: result["weather"][code]=old
-  errors.append("weather "+code+": "+str(e))
+ try: return ("weather",code,fetch_weather(city),None)
+ except Exception as e: return ("weather",code,old,str(e))
 
-# City-specific weather headlines from Google News RSS; keep the previous headlines if a city feed fails.
-for code,city in CITIES.items():
- name=city[0]
- old=previous.get("weather_news",{}).get(code,{})
+def refresh_city_feed(kind, code, query):
+ old=previous.get(kind,{}).get(code,{})
  try:
-  fresh=fetch_google(f'"{name}" طقس OR "حالة الطقس" {name}')
-  result["weather_news"][code]={"items":merge(old.get("items",[]),fresh),"updated_at":result["updated_at"],"status":"ok" if fresh else "ok_empty","new_items":len(fresh)}
+  fresh=fetch_google(query)
+  data={"items":merge(old.get("items",[]),fresh),"updated_at":result["updated_at"],"status":"ok" if fresh else "ok_empty","new_items":len(fresh)}
+  return (kind,code,data,None)
  except Exception as e:
-  result["weather_news"][code]={"items":old.get("items",[]),"updated_at":old.get("updated_at",""),"status":"stale" if old.get("items") else "unavailable","error":str(e)[:180]}
-  errors.append("weather news "+code+": "+str(e))
+  data={"items":old.get("items",[]),"updated_at":old.get("updated_at",""),"status":"stale" if old.get("items") else "unavailable","error":str(e)[:180]}
+  return (kind,code,data,str(e))
+
+tasks=[]
+for code,city in CITIES.items():
+ tasks.append(("weather",code,city))
+ tasks.append(("city_news",code,CITY_NEWS_QUERIES[code]))
+ name=city[0]
+ tasks.append(("weather_news",code,f'"{name}" طقس OR "حالة الطقس" {name}'))
+
+def run_task(task):
+ kind,code,arg=task
+ if kind=="weather": return refresh_weather(code,arg)
+ return refresh_city_feed(kind,code,arg)
+
+with ThreadPoolExecutor(max_workers=10) as pool:
+ futures=[pool.submit(run_task,task) for task in tasks]
+ for future in as_completed(futures):
+  kind,code,data,error=future.result()
+  if kind=="weather":
+   if data: result["weather"][code]=data
+   else: errors.append("weather "+code+": "+str(error))
+  else:
+   result[kind][code]=data
+   if error: errors.append(kind+" "+code+": "+str(error))
 result["errors"]=errors
 with open(OUT,"w",encoding="utf-8") as f: json.dump(result,f,ensure_ascii=False,indent=2)
 print("Updated",len(result["categories"]),"feeds and",len(result["weather"]),"weather locations; errors:",len(errors))
