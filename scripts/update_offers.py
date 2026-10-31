@@ -42,6 +42,13 @@ def main():
   if r.status!=200: raise RuntimeError("SnapFlyer HTTP "+str(r.status))
   html=r.read(2_500_000).decode(r.headers.get_content_charset() or "utf-8","replace")
  p=Links(); p.feed(html)
+ for link in p.rows:
+  node=link.get("parent"); context=""
+  while node is not None:
+   context=clean(node["text"])
+   if any(store in context for store in STORES): break
+   node=node["parent"]
+  link["context"]=context or link["text"]
  rows=[]; seen=set()
  for a in p.rows:
   url=urljoin(BASE,a["href"]); u=urlparse(url)
