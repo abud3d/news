@@ -14,16 +14,26 @@ UA="SaudiAI-NewsBot/1.0 (+https://abud3d.github.io/news/)"
 STORES=("بنده","بندة","العثيم","كارفور","لولو","الدانوب","التميمي","بن داود","إكسترا","اكسترا","جرير","ساكو","نستو","النهدي","صيدليات الدواء","أسواق النخبة","أسواق رامز","المزرعة","هايبر الوفاء","كارفور السعودية")
 class Links(HTMLParser):
  def __init__(self):
-  super().__init__(); self.rows=[]; self.cur=None
+  super().__init__(); self.stack=[]; self.rows=[]
  def handle_starttag(self,tag,attrs):
-  if tag.lower()=="a":
-   a=dict(attrs)
-   if a.get("href"): self.cur={"href":a["href"],"text":""}
+  node={"tag":tag.lower(),"attrs":dict(attrs),"text":"","parent":self.stack[-1] if self.stack else None}
+  if node["parent"] is not None: node["parent"]["children"].append(node)
+  node["children"]=[]
+  self.stack.append(node)
+ def handle_startendtag(self,tag,attrs):
+  self.handle_starttag(tag,attrs); self.handle_endtag(tag)
  def handle_data(self,data):
-  if self.cur is not None: self.cur["text"]+=" "+data
+  for node in self.stack: node["text"]+=data
  def handle_endtag(self,tag):
-  if tag.lower()=="a" and self.cur is not None:
-   self.rows.append(self.cur); self.cur=None
+  tag=tag.lower()
+  for i in range(len(self.stack)-1,-1,-1):
+   if self.stack[i]["tag"]==tag:
+    node=self.stack[i]
+    if tag=="a" and node["attrs"].get("href"):
+     parent=node["parent"]
+     self.rows.append({"href":node["attrs"]["href"],"text":node["text"],"context":parent["text"] if parent else node["text"]})
+    del self.stack[i:]
+    break
 def clean(s):
  return re.sub(r"\s+"," ",unescape(re.sub(r"<[^>]+>"," ",s or ""))).strip()
 def main():
@@ -37,7 +47,7 @@ def main():
   url=urljoin(BASE,a["href"]); u=urlparse(url)
   if u.netloc!="snapflyer.io" or not u.path.startswith("/sa/"): continue
   if any(x in u.path for x in ("/stores/","/products/","/offers","/categories/")): continue
-  txt=clean(a["text"])
+  txt=clean(a["context"] or a["text"])
   if len(txt)<8 or not any(store in txt for store in STORES): continue
   store=next((s for s in STORES if s in txt),"متجر")
   # Card text usually includes store name followed by the flyer title.
@@ -52,7 +62,7 @@ def main():
   seen.add(key)
   rows.append({"title":store+" تطلق عرض: "+title,"url":url,"source":"SnapFlyer · "+store,
    "description":txt[:500],"date":datetime.now(timezone.utc).isoformat(),"category":"عروض المتاجر"})
- if not rows: raise RuntimeError("لم أتعرف على روابط نشرات العروض في صفحة SnapFlyer؛ احتفظنا بالبيانات السابقة")
+ if not rows: raise RuntimeError("لم أتعرف على روابط نشرات العروض في صفحة SnapFlyer؛ احتفظنا بالبيانات السابقة")\n print("SnapFlyer links scanned:",len(p.rows),"matching active flyers:",len(rows))
  # Keep currently listed flyers only; listing page is filtered to active flyers.
  result={"updated_at":datetime.now(timezone.utc).isoformat(),"source_url":SOURCE,"items":rows[:100]}
  os.makedirs(os.path.dirname(OUT),exist_ok=True)
