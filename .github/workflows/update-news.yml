@@ -6,7 +6,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "scripts/update_news.py"
+      - "scripts/update_news.py"\n      - "scripts/update_offers.py"
       - ".github/workflows/update-news.yml"
 permissions:
   contents: write
@@ -28,14 +28,14 @@ jobs:
           python-version: "3.x"
       - name: Fetch feeds and preserve previous data on failures
         run: python scripts/update_news.py
-      - name: Commit updated cache
+      - name: Fetch active store flyers from SnapFlyer\n        continue-on-error: true\n        run: python scripts/update_offers.py\n      - name: Commit updated cache
         run: |
-          if git diff --quiet -- data/news.json; then
+          if git diff --quiet -- data/news.json data/offers.json; then
             echo "No news cache changes."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/news.json
-          git commit -m "chore: refresh cached news"
+          git add data/news.json data/offers.json
+          git commit -m "chore: refresh cached news and offers"
           git push
