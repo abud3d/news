@@ -101,6 +101,7 @@ async function loadSports(){
  const box=$("sportsContent");box.innerHTML='<div class="empty">جارٍ تحميل البيانات الرياضية…</div>';
  try{
   if(sportView==="news"){
+   await readNewsCache();
    const query=currentLeague==="ksa.1"
     ? "دوري روشن السعودي الهلال النصر الاتحاد الأهلي الشباب أخبار"
     : "دوري أبطال آسيا للنخبة الهلال الأهلي الاتحاد أخبار";
@@ -132,6 +133,6 @@ $("sportViews").addEventListener("click",e=>{const b=e.target.closest("button[da
 
 $("categories").addEventListener("click",e=>{const b=e.target.closest("button[data-q],button[data-cyber]");if(!b)return;$("sportsPanel").style.display="none";$("feed").style.display="flex";document.querySelectorAll("#categories .chip").forEach(x=>x.classList.toggle("active",x===b));activeQuery=b.dataset.cyber?"__CYBER__":b.dataset.q;$("feedTitle").textContent=b.textContent+" · الأخبار";loadNews()});
 $("cities").addEventListener("click",e=>{const b=e.target.closest("button[data-city]");if(!b)return;document.querySelectorAll("#cities .chip").forEach(x=>x.classList.toggle("active",x===b));activeCity=b.dataset.city;$("sportsPanel").style.display="none";$("feed").style.display="flex";$("feedTitle").textContent=activeCity?"أخبار "+activeCity:"أحدث الأخبار";loadNews()});
-$("city").addEventListener("change",loadPrayer);loadPrayer();loadNews();setInterval(loadNews,30*60*1000);
+$("city").addEventListener("change",()=>{loadPrayer();if(activeQuery==="السعودية طقس")loadNews()});loadPrayer();loadNews();setInterval(loadNews,30*60*1000);
 </script>
 </body></html>
