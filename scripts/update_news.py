@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-import json, os, re, time, urllib.parse, urllib.request, xml.etree.ElementTree as ET
+import json, os, re, time, urllib.parse, urllib.request, urllib.error, xml.etree.ElementTree as ET
+from html.parser import HTMLParser
 from datetime import datetime, timezone
 from html import unescape
 
@@ -42,6 +43,36 @@ def get(url, timeout=12):
 
 def clean(s):
  return re.sub(r"\s+"," ", re.sub(r"<[^>]+>"," ",unescape(s or ""))).strip()
+
+class MetaDescriptionParser(HTMLParser):
+ def __init__(self):
+  super().__init__(); self.description=""
+ def handle_starttag(self, tag, attrs):
+  if tag.lower()!="meta" or self.description: return
+  a={k.lower():v for k,v in attrs if k and v}
+  key=(a.get("property") or a.get("name") or "").lower()
+  if key in ("og:description","twitter:description","description"):
+   self.description=clean(a.get("content",""))
+
+def page_excerpt(url):
+ try:
+  req=urllib.request.Request(url,headers={"User-Agent":UA,"Accept":"text/html"})
+  with urllib.request.urlopen(req,timeout=5) as response:
+   if response.status!=200 or "text/html" not in response.headers.get("Content-Type","").lower(): return ""
+   raw=response.read(256000).decode(response.headers.get_content_charset() or "utf-8","replace")
+  parser=MetaDescriptionParser(); parser.feed(raw)
+  return parser.description[:300]
+ except Exception:
+  return ""
+
+def enrich_excerpts(rows):
+ checked=0
+ for item in rows:
+  item["description"]=clean(item.get("description",""))[:300]
+  if not item["description"] and item.get("url") and checked<3:
+   checked+=1
+   item["description"]=page_excerpt(item["url"])
+ return rows
 
 def parse_rss(url, source_override=None):
  root=ET.fromstring(get(url))
@@ -103,6 +134,7 @@ def category(key, fn):
  old=previous.get("categories",{}).get(key,{})
  try:
   fresh=fn()
+  fresh=enrich_excerpts(fresh)
   if not fresh: raise RuntimeError("المصدر أعاد قائمة فارغة")
   result["categories"][key]={"items":merge(old.get("items",[]),fresh),"updated_at":result["updated_at"],"status":"ok"}
  except Exception as e:
