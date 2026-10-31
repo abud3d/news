@@ -28,7 +28,7 @@ footer{border-top:1px solid var(--line);margin-top:35px;padding:22px 0 30px;colo
 <div class="tools">
 <div class="datebox"><b id="clock">--:--:--</b><span id="hijri">جارٍ تحميل التاريخ الهجري…</span></div>
 <label class="citybox">📍 <select id="city" aria-label="اختر المدينة">
-<option value="Riyadh">الرياض</option><option value="Buraydah">القصيم</option><option value="Hail">حائل</option><option value="Jeddah">جدة</option><option value="Makkah">مكة المكرمة</option><option value="Madinah">المدينة المنورة</option><option value="Dammam">الدمام</option><option value="Abha">أبها</option><option value="Tabuk">تبوك</option><option value="Buraydah">بريدة</option><option value="Taif">الطائف</option><option value="Jazan">جازان</option><option value="Najran">نجران</option><option value="AlBaha">الباحة</option><option value="Sakaka">سكاكا</option><option value="Arar">عرعر</option>
+<option value="Riyadh">الرياض</option><option value="Buraydah">بريدة · القصيم</option><option value="Hail">حائل</option><option value="Jeddah">جدة</option><option value="Makkah">مكة المكرمة</option><option value="Madinah">المدينة المنورة</option><option value="Dammam">الدمام</option><option value="Abha">أبها</option><option value="Tabuk">تبوك</option><option value="Taif">الطائف</option><option value="Jazan">جازان</option><option value="Najran">نجران</option><option value="AlBaha">الباحة</option><option value="Sakaka">سكاكا</option><option value="Arar">عرعر</option><option value="AlKhobar">الخبر</option>
 </select></label>
 </div></div></header>
 <main class="wrap">
@@ -70,10 +70,10 @@ footer{border-top:1px solid var(--line);margin-top:35px;padding:22px 0 30px;colo
 <div class="card"><h3>حالة التحديث</h3><div class="status"><span class="dot"></span><span id="feedStatus">تحديث الأخبار تلقائياً كل 30 دقيقة أثناء فتح الصفحة</span></div><p style="margin-top:8px">الأخبار المعروضة روابط من مصادر خارجية، وقد يختلف توفرها حسب المصدر.</p></div>
 </aside></div>
 </main>
-<footer><div class="wrap">ذكاء السعودية Saudi AI · نسخة أولية 1.0 · تُعرض الأخبار باسم الناشر الأصلي مع رابط الخبر. تُستخدم خدمة RSS لجلب العناوين فقط. مواقيت الصلاة من خدمة AlAdhan.</div></footer>
+<footer><div class="wrap">ذكاء السعودية Saudi AI · النسخة التقريبية 1.1.0 · Talal @ 2026 · <a href="https://abud3d.github.io/welcome/" target="_blank" rel="noopener">نبذتي الرقمية على GitHub</a> · تُعرض الأخبار باسم الناشر الأصلي مع رابط الخبر. تُستخدم خدمة RSS لجلب العناوين فقط. مواقيت الصلاة من خدمة AlAdhan.</div></footer>
 <script>
 const cityNames={Riyadh:"الرياض",Buraydah:"القصيم",Hail:"حائل",Jeddah:"جدة",Makkah:"مكة المكرمة",Madinah:"المدينة المنورة",Dammam:"الدمام",Abha:"أبها",Tabuk:"تبوك",Buraydah:"بريدة",Taif:"الطائف",Jazan:"جازان",Najran:"نجران",AlBaha:"الباحة",Sakaka:"سكاكا",Arar:"عرعر"};
-const $=id=>document.getElementById(id);let activeQuery="Saudi Arabia news",activeCity="",articles=[],visibleCount=10,prayers=null,nextAt=null,currentLeague="ksa.1",sportView="news";
+const cityCodes={"الرياض":"Riyadh","القصيم":"Buraydah","بريدة":"Buraydah","حائل":"Hail","مكة":"Makkah","مكة المكرمة":"Makkah","المدينة المنورة":"Madinah","جدة":"Jeddah","الدمام":"Dammam","الخبر":"AlKhobar","أبها":"Abha","عسير":"Abha","تبوك":"Tabuk","الطائف":"Taif","جازان":"Jazan","نجران":"Najran","الباحة":"AlBaha","سكاكا":"Sakaka","الجوف":"Sakaka","عرعر":"Arar","الحدود الشمالية":"Arar"};\nconst $=id=>document.getElementById(id);let activeQuery="Saudi Arabia news",activeCity="",articles=[],visibleCount=10,prayers=null,nextAt=null,currentLeague="ksa.1",sportView="news";
 function tick(){const d=new Date();$("clock").textContent=new Intl.DateTimeFormat("ar-SA",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true,timeZone:"Asia/Riyadh"}).format(d);if(nextAt){let ms=Math.max(0,nextAt-Date.now());let h=Math.floor(ms/36e5),m=Math.floor(ms%36e5/6e4),s=Math.floor(ms%6e4/1e3);$("remaining").textContent=[h,m,s].map(n=>String(n).padStart(2,"0")).join(":")}}
 setInterval(tick,1000);tick();
 async function loadPrayer(){const city=$("city").value;$("prayerCity").textContent=cityNames[city]||city;try{const url="https://api.aladhan.com/v1/timingsByCity?city="+encodeURIComponent(city)+"&country=Saudi%20Arabia&method=4";const res=await fetch(url);if(!res.ok)throw Error("Prayer API");const j=await res.json();const data=j.data;const t=data.timings;$("hijri").textContent=data.date.hijri.weekday.ar+"، "+data.date.hijri.day+" "+data.date.hijri.month.ar+" "+data.date.hijri.year+" هـ";const keys=[["الفجر","Fajr"],["الشروق","Sunrise"],["الظهر","Dhuhr"],["العصر","Asr"],["المغرب","Maghrib"],["العشاء","Isha"]];const now=new Date();const nowM=now.getHours()*60+now.getMinutes();let chosen=keys.find(([n,k])=>{const p=t[k].split(" ")[0].split(":").map(Number);return p[0]*60+p[1]>nowM});let target=new Date();if(!chosen){chosen=keys[0];target.setDate(target.getDate()+1)}const parts=t[chosen[1]].split(" ")[0].split(":").map(Number);target.setHours(parts[0],parts[1],0,0);nextAt=target.getTime();$("nextPrayer").textContent=chosen[0];$("prayerTime").textContent="اليوم · "+t[chosen[1]]+" · أم القرى";tick()}catch(e){$("nextPrayer").textContent="تعذر تحميل المواقيت";$("prayerTime").textContent="تحقق من الاتصال ثم أعد المحاولة"}}
@@ -84,7 +84,7 @@ async function cyberFeed(){const rss="https://thehackernews.com/feeds/posts/defa
 function articleUrl(a){return "article.html?"+new URLSearchParams({title:a.title||"",url:a.url||"",source:a.source||"",date:a.date||"",description:a.description||""}).toString()}
 async function shareStory(e,a){e.preventDefault();const link=new URL(articleUrl(a),location.href).href;try{if(navigator.share)await navigator.share({title:a.title,url:link});else{await navigator.clipboard.writeText(link);alert("تم نسخ رابط الخبر")}}catch(err){}}
 function render(){
- const list=articles.filter(a=>!activeCity||((a.title+" "+a.description).includes(activeCity)));
+ const list=articles;
  const shown=list.slice(0,visibleCount);
  $("loadMore").style.display=list.length>visibleCount?"block":"none";
  $("loadMore").textContent="عرض المزيد من الأخبار ("+Math.min(visibleCount,list.length)+" من "+list.length+")";
@@ -120,14 +120,15 @@ async function loadNews(){
   const cache=await readNewsCache();let items=[];
   if(activeQuery==="__CYBER__")items=cachedCategory("__CYBER__");
   else if(activeQuery.includes("Hacker News"))items=cachedCategory("HACKER_NEWS");
-  else if(activeQuery==="السعودية طقس"){const code=$("city").value,w=cache.weather?.[code],news=cache.weather_news?.[code]?.items||[];items=[...(w?[w]:[]),...news]}
+  else if(activeQuery==="السعودية طقس"){const code=activeCity?(cityCodes[activeCity]||$("city").value):$("city").value,w=cache.weather?.[code],news=cache.weather_news?.[code]?.items||[];items=[...(w?[w]:[]),...news]}
+  else if(activeCity){const code=cityCodes[activeCity];items=code?(cache.city_news?.[code]?.items||[]):[]}
   else items=cachedCategory(activeQuery);
   if(!items.length)throw Error("لا توجد بيانات مخزنة لهذا القسم بعد");
   articles=items.slice().sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
   render();
   setUpdateLabel("updated",cache.updated_at,"آخر تحديث للمستودع ");
   const stale=cache.categories?.[activeQuery]?.status==="stale";
-  $("feedStatus").textContent=stale?"المصدر تعطل مؤقتاً؛ نعرض آخر نسخة محفوظة.":"الأخبار محفوظة بالمستودع وتتجدد آلياً كل 30 دقيقة";
+  $("feedStatus").textContent=activeCity?(cache.city_news?.[cityCodes[activeCity]]?.status==="stale"?"تعذر تحديث أخبار المنطقة؛ نعرض آخر نسخة محفوظة.":"أخبار المنطقة من Google News RSS"):(stale?"المصدر تعطل مؤقتاً؛ نعرض آخر نسخة محفوظة.":"الأخبار محفوظة بالمستودع وتتجدد آلياً كل 15 دقيقة");
  }catch(e){
   if(articles.length){render();$("feedStatus").textContent="تعذر تحديث النسخة؛ نعرض آخر أخبار محمّلة."}
   else $("feed").innerHTML='<div class="empty">لم تصل بيانات هذا القسم بعد. سيظهر المحتوى بعد أول تحديث ناجح للمستودع.</div>';
