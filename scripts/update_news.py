@@ -135,8 +135,7 @@ def category(key, fn):
  try:
   fresh=fn()
   fresh=enrich_excerpts(fresh)
-  if not fresh: raise RuntimeError("المصدر أعاد قائمة فارغة")
-  result["categories"][key]={"items":merge(old.get("items",[]),fresh),"updated_at":result["updated_at"],"status":"ok"}
+  result["categories"][key]={"items":merge(old.get("items",[]),fresh),"updated_at":result["updated_at"],"status":"ok" if fresh else "ok_empty","new_items":len(fresh)}
  except Exception as e:
   errors.append(key+": "+str(e))
   result["categories"][key]={"items":old.get("items",[]),"updated_at":old.get("updated_at",""),"status":"stale" if old.get("items") else "unavailable","error":str(e)[:180]}
