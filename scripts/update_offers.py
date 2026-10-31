@@ -31,7 +31,7 @@ class Links(HTMLParser):
     node=self.stack[i]
     if tag=="a" and node["attrs"].get("href"):
      parent=node["parent"]
-     self.rows.append({"href":node["attrs"]["href"],"text":node["text"],"context":parent["text"] if parent else node["text"]})
+     self.rows.append({"href":node["attrs"]["href"],"text":node["text"],"parent":parent})
     del self.stack[i:]
     break
 def clean(s):
