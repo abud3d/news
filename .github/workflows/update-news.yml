@@ -6,8 +6,9 @@ on:
   push:
     branches: [main]
     paths:
-      - "scripts/update_news.py"
-      - "scripts/update_offers.py"
+      - "index.html"
+      - "article.html"
+      - "scripts/**"
       - ".github/workflows/update-news.yml"
 permissions:
   contents: write
@@ -27,6 +28,30 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.x"
+      - name: Bump approximate site version for source updates
+        if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
+        run: |
+          changed="$(git diff-tree --no-commit-id --name-only -r HEAD)"
+          if echo "$changed" | grep -Eq '^(index\.html|article\.html|scripts/.*\.py|\.github/workflows/update-news\.yml)      - name: Fetch feeds and preserve previous data on failures
+        run: python scripts/update_news.py
+      - name: Fetch active store flyers from SnapFlyer
+        continue-on-error: true
+        run: python scripts/update_offers.py
+      - name: Commit updated cache
+        run: |
+          if git diff --quiet -- data/news.json data/offers.json index.html; then
+            echo "No news cache changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/news.json data/offers.json index.html
+          git commit -m "[skip ci] chore: refresh cached news and offers"
+          git pull --rebase origin main
+          git push
+; then
+            python scripts/bump_version.py
+          fi
       - name: Fetch feeds and preserve previous data on failures
         run: python scripts/update_news.py
       - name: Fetch active store flyers from SnapFlyer
