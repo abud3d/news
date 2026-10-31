@@ -76,7 +76,7 @@ function render(){
  $("loadMore").textContent="عرض المزيد من الأخبار ("+Math.min(visibleCount,list.length)+" من "+list.length+")";
  $("feed").innerHTML=shown.length?shown.map((a,i)=>{
   const shareData=JSON.stringify(a).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
-  return '<article class="story"><div class="rank">'+String(i+1).padStart(2,"0")+'</div><div><h3>'+esc(a.title)+'</h3><div class="meta"><span class="tag">'+esc(a.source||"الناشر الأصلي")+'</span><span>'+dateLabel(a.date)+'</span></div><div class="meta"><a href="'+esc(articleUrl(a))+'">صفحة الخبر</a> · <a href="#" onclick="shareStory(event, '+shareData+')">مشاركة</a></div></div></article>';
+  return '<article class="story"><div class="rank">'+String(i+1).padStart(2,"0")+'</div><div><h3><a href="'+esc(articleUrl(a))+'">'+esc(a.title)+'</a></h3><div class="meta"><span class="tag">'+esc(a.source||"الناشر الأصلي")+'</span><span>'+dateLabel(a.date)+'</span></div><div class="meta"><a href="'+esc(articleUrl(a))+'">صفحة الخبر</a> · <a href="#" onclick="shareStory(event, '+shareData+')">مشاركة</a></div></div></article>';
  }).join(""):'<div class="empty">لا توجد نتائج لهذه المدينة في الموجز الحالي. جرّب قسماً آخر.</div>';
 }
 function esc(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
@@ -116,7 +116,7 @@ async function loadSports(){
     : "دوري أبطال آسيا للنخبة الهلال الأهلي الاتحاد أخبار";
    const items=cachedCategory(currentLeague==="ksa.1"?"SPORT_KSA":"SPORT_AFC");
    if(!items.length){box.innerHTML='<div class="empty">لا توجد أخبار رياضية متاحة حالياً لهذه المسابقة.</div>';return}
-   box.innerHTML=items.map((a,i)=>'<article class="story"><div class="rank">'+String(i+1).padStart(2,"0")+'</div><div><h3>'+esc(a.title)+'</h3><div class="meta"><span class="tag">'+esc(a.source||"الناشر الأصلي")+'</span><span>'+dateLabel(a.date)+'</span></div>'</div></article>').join("")
+   box.innerHTML=items.map((a,i)=>'<article class="story"><div class="rank">'+String(i+1).padStart(2,"0")+'</div><div><h3><a href="'+esc(articleUrl(a))+'">'+esc(a.title)+'</a></h3><div class="meta"><span class="tag">'+esc(a.source||"الناشر الأصلي")+'</span><span>'+dateLabel(a.date)+'</span></div>'</div></article>').join("")
   }else if(sportView==="table"){
    const r=await fetch("https://site.api.espn.com/apis/v2/sports/soccer/"+currentLeague+"/standings");
    if(!r.ok)throw Error("standings");const j=await r.json();
