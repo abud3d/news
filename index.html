@@ -72,7 +72,30 @@ async function shareStory(e,a){e.preventDefault();const link=new URL(articleUrl(
 function render(){const list=articles.filter(a=>!activeCity||((a.title+" "+a.description).includes(activeCity)));const shown=list.slice(0,visibleCount);$("loadMore").style.display=list.length>visibleCount?"block":"none";$("loadMore").textContent="عرض المزيد من الأخبار ("+Math.min(visibleCount,list.length)+" من "+list.length+")";$("feed").innerHTML=shown.length?shown.map((a,i)=>'<article class="story"><div class="rank">'+String(i+1).padStart(2,"0")+'</div><div><h3><a href="'+esc(articleUrl(a))+'">'+esc(a.title)+'</a></h3><div class="meta"><span class="tag">'+esc(a.source||"الناشر الأصلي")+'</span><span>'+dateLabel(a.date)+'</span></div><div class="meta"><a href="'+esc(articleUrl(a))+'">صفحة الخبر</a> · <a href="#" onclick="shareStory(event, '+JSON.stringify(a).replace(/"/g,"&quot;")+')">مشاركة</a></div></div><a class="open" href="'+esc(a.url)+'" target="_blank" rel="noopener">الناشر ↗</a></article>').join(""):'<div class="empty">لا توجد نتائج لهذه المدينة في الموجز الحالي. جرّب قسماً آخر.</div>'}
 function esc(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function dateLabel(s){if(!s)return "حديثاً";const d=new Date(s);if(isNaN(d))return "حديثاً";const sec=Math.max(0,Math.floor((Date.now()-d.getTime())/1000));if(sec<60)return "منذ لحظات";if(sec<3600)return "منذ "+Math.floor(sec/60)+" دقيقة";if(sec<86400)return "منذ "+Math.floor(sec/3600)+" ساعة";if(sec<604800)return "منذ "+Math.floor(sec/86400)+" يوم";return new Intl.DateTimeFormat("ar-SA",{dateStyle:"medium"}).format(d)}
-async function loadNews(){ visibleCount=10;$("loadMore").style.display="none";$("feed").innerHTML='<div class="empty">جارٍ تحديث الأخبار…</div>';try{let items=activeQuery==="__CYBER__"?await cyberFeed():(activeQuery.includes("Hacker News")?await hackerFeed():await googleFeed(activeQuery+(activeCity?" "+activeCity:"")));articles=items.sort((a,b)=>new Date(b.date)-new Date(a.date));render();$("updated").textContent="آخر تحديث: "+new Intl.DateTimeFormat("ar-SA",{hour:"2-digit",minute:"2-digit"}).format(new Date());$("feedStatus").textContent="يتم التحديث تلقائياً كل 30 دقيقة أثناء فتح الصفحة"}catch(e){$("feed").innerHTML='<div class="empty">تعذر جلب الأخبار حالياً. قد تكون خدمة موجز الأخبار غير متاحة مؤقتاً.</div>';$("feedStatus").textContent="تعذر الاتصال بمصدر الأخبار"}}
+let cachedNews=null;
+async function readNewsCache(){const r=await fetch("data/news.json?ts="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("news cache "+r.status);const j=await r.json();if(!j||!j.categories)throw Error("invalid news cache");cachedNews=j;return j}
+function cachedCategory(key){return cachedNews?.categories?.[key]?.items||[]}
+function cacheTime(){const t=cachedNews?.updated_at;return t?new Intl.DateTimeFormat("ar-SA",{dateStyle:"short",timeStyle:"short"}).format(new Date(t)):"لم يكتمل أول تحديث بعد"}
+async function loadNews(){
+ visibleCount=10;$("loadMore").style.display="none";
+ try{
+  const cache=await readNewsCache();let items=[];
+  if(activeQuery==="__CYBER__")items=cachedCategory("__CYBER__");
+  else if(activeQuery.includes("Hacker News"))items=cachedCategory("HACKER_NEWS");
+  else if(activeQuery==="السعودية طقس"){const w=cache.weather?.[$("city").value];items=w?[w]:[]}
+  else items=cachedCategory(activeQuery);
+  if(!items.length)throw Error("لا توجد بيانات مخزنة لهذا القسم بعد");
+  articles=items.slice().sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+  render();
+  $("updated").textContent="آخر تحديث للمستودع: "+cacheTime();
+  const stale=cache.categories?.[activeQuery]?.status==="stale";
+  $("feedStatus").textContent=stale?"المصدر تعطل مؤقتاً؛ نعرض آخر نسخة محفوظة.":"الأخبار محفوظة بالمستودع وتتجدد آلياً كل 30 دقيقة";
+ }catch(e){
+  if(articles.length){render();$("feedStatus").textContent="تعذر تحديث النسخة؛ نعرض آخر أخبار محمّلة."}
+  else $("feed").innerHTML='<div class="empty">لم تصل بيانات هذا القسم بعد. سيظهر المحتوى بعد أول تحديث ناجح للمستودع.</div>';
+  $("updated").textContent="آخر تحديث للمستودع: "+(cachedNews?cacheTime():"بانتظار أول تشغيل");
+ }
+}
 
 async function loadSports(){
  const box=$("sportsContent");box.innerHTML='<div class="empty">جارٍ تحميل البيانات الرياضية…</div>';
@@ -81,7 +104,7 @@ async function loadSports(){
    const query=currentLeague==="ksa.1"
     ? "دوري روشن السعودي الهلال النصر الاتحاد الأهلي الشباب أخبار"
     : "دوري أبطال آسيا للنخبة الهلال الأهلي الاتحاد أخبار";
-   const items=await googleFeed(query);
+   const items=cachedCategory(currentLeague==="ksa.1"?"SPORT_KSA":"SPORT_AFC");
    if(!items.length){box.innerHTML='<div class="empty">لا توجد أخبار رياضية متاحة حالياً لهذه المسابقة.</div>';return}
    box.innerHTML=items.map((a,i)=>'<article class="story"><div class="rank">'+String(i+1).padStart(2,"0")+'</div><div><h3><a href="'+esc(articleUrl(a))+'">'+esc(a.title)+'</a></h3><div class="meta"><span class="tag">'+esc(a.source||"الناشر الأصلي")+'</span><span>'+dateLabel(a.date)+'</span></div><div class="meta"><a href="'+esc(a.url)+'" target="_blank" rel="noopener">المصدر الأصلي ↗</a></div></div></article>').join("");
   }else if(sportView==="table"){
