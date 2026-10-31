@@ -101,7 +101,8 @@ async function loadSports(){
   }
  }catch(err){box.innerHTML='<div class="empty">تعذر تحميل بيانات هذه المسابقة من المصدر حالياً. جرّب التحديث لاحقاً.</div>'}
 }
-$("loadMore").addEventListener("click",()=>{visibleCount+=15;render()});\n$("categories").addEventListener("click",e=>{const b=e.target.closest("button[data-sport]");if(!b)return;document.querySelectorAll("#categories .chip").forEach(x=>x.classList.toggle("active",x===b));$("sportsPanel").style.display="block";$("feed").style.display="none";$("loadMore").style.display="none";$("feedTitle").textContent="";$("updated").textContent="";loadSports()});
+$("loadMore").addEventListener("click",()=>{visibleCount+=15;render()});
+$("categories").addEventListener("click",e=>{const b=e.target.closest("button[data-sport]");if(!b)return;document.querySelectorAll("#categories .chip").forEach(x=>x.classList.toggle("active",x===b));$("sportsPanel").style.display="block";$("feed").style.display="none";$("loadMore").style.display="none";$("feedTitle").textContent="";$("updated").textContent="";loadSports()});
 $("sportLeagues").addEventListener("click",e=>{const b=e.target.closest("button[data-league]");if(!b)return;currentLeague=b.dataset.league;document.querySelectorAll("#sportLeagues .chip").forEach(x=>x.classList.toggle("active",x===b));loadSports()});
 $("sportViews").addEventListener("click",e=>{const b=e.target.closest("button[data-view]");if(!b)return;sportView=b.dataset.view;document.querySelectorAll("#sportViews .chip").forEach(x=>x.classList.toggle("active",x===b));loadSports()});
 
