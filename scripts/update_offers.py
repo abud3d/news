@@ -25,7 +25,7 @@ class Links(HTMLParser):
   if tag.lower()=="a" and self.cur is not None:
    self.rows.append(self.cur); self.cur=None
 def clean(s):
- return re.sub(r"\\s+"," ",unescape(re.sub(r"<[^>]+>"," ",s or ""))).strip()
+ return re.sub(r"\s+"," ",unescape(re.sub(r"<[^>]+>"," ",s or ""))).strip()
 def main():
  req=urllib.request.Request(SOURCE,headers={"User-Agent":UA,"Accept":"text/html"})
  with urllib.request.urlopen(req,timeout=18) as r:
@@ -44,7 +44,7 @@ def main():
   title=txt
   marker=store+" —"
   if marker in txt: title=txt.split(marker,1)[1].strip()
-  title=re.sub(r"^SnapFlyer\\s*","",title).strip(" ·|—-")
+  title=re.sub(r"^SnapFlyer\s*","",title).strip(" ·|—-")
   title=title[:180]
   if not title: continue
   key=url.split("?")[0]
