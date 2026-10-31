@@ -120,7 +120,7 @@ async function loadNews(){
   const cache=await readNewsCache();let items=[];
   if(activeQuery==="__CYBER__")items=cachedCategory("__CYBER__");
   else if(activeQuery.includes("Hacker News"))items=cachedCategory("HACKER_NEWS");
-  else if(activeQuery==="السعودية طقس"){const w=cache.weather?.[$("city").value];items=w?[w]:[]}
+  else if(activeQuery==="السعودية طقس"){const code=$("city").value,w=cache.weather?.[code],news=cache.weather_news?.[code]?.items||[];items=[...(w?[w]:[]),...news]}
   else items=cachedCategory(activeQuery);
   if(!items.length)throw Error("لا توجد بيانات مخزنة لهذا القسم بعد");
   articles=items.slice().sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
