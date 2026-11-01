@@ -213,7 +213,7 @@ TECH_SOURCES = {
  "Ars Technica":"https://feeds.arstechnica.com/arstechnica/index",
  "WIRED":"https://www.wired.com/feed/rss",
 }
-TECH_DOMAINS=["theverge.com","techcrunch.com","androidauthority.com","gsmarena.com","sciencedaily.com","arstechnica.com","wired.com","engadget.com","cnet.com","9to5google.com"]
+TECH_DOMAINS=["androidauthority.com","gsmarena.com","sciencedaily.com","arstechnica.com","wired.com","engadget.com","cnet.com","9to5google.com"]
 
 def fetch_technology():
  rows=[]
