@@ -228,8 +228,8 @@ $("city").addEventListener("change",()=>{loadPrayer();if(activeQuery==="السع
 
 /* Economy market dashboard: values are labelled with their provider and fetch time. */
 const marketCache={};
-const marketNames={tasi:"مؤشر تاسي",gold:"الذهب",oil:"نفط برنت",currency:"العملات",gas:"الغاز",fuel:"الوقود",electricity:"الكهرباء",water:"المياه"};
-const marketSources={tasi:"Yahoo Finance (^TASI)؛ مصدر سوقي غير رسمي",gold:"Yahoo Finance (GC=F)؛ تحويل من الأونصة إلى الجرام والريال",oil:"Yahoo Finance (BZ=F)",currency:"Frankfurter / ECB؛ أسعار مرجعية",gas:"لا يوجد مصدر موثوق مفعّل بعد",fuel:"أرامكو السعودية — يلزم ربط جدول الأسعار الرسمي",electricity:"الشركة السعودية للكهرباء / هيئة تنظيم المياه والكهرباء",water:"شركة المياه الوطنية / هيئة تنظيم المياه والكهرباء"};
+const marketNames={tasi:"مؤشر تاسي",nomu:"مؤشر نمو",gold:"الذهب",oil:"نفط برنت",currency:"العملات",gas:"الغاز المنزلي",fuel:"الوقود",electricity:"الكهرباء",water:"المياه"};
+const marketSources={tasi:"Yahoo Finance (^TASI)؛ مصدر سوقي غير رسمي",gold:"Yahoo Finance (GC=F)؛ تحويل من الأونصة إلى الجرام والريال",oil:"Yahoo Finance (BZ=F)",currency:"Frankfurter / ECB؛ أسعار مرجعية",gas:"غازكو · أسعار تعبئة الغاز المنزلي شاملة النقل والضريبة",fuel:"أرامكو السعودية — يلزم ربط جدول الأسعار الرسمي",electricity:"الشركة السعودية للكهرباء / هيئة تنظيم المياه والكهرباء",water:"شركة المياه الوطنية / هيئة تنظيم المياه والكهرباء"};
 const fmtMarket=n=>Number.isFinite(n)?new Intl.NumberFormat("ar-SA",{maximumFractionDigits:2}).format(n):"—";
 async function yahooQuote(symbol){const u="https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(symbol)+"?range=5d&interval=1d";const r=await fetch(u);if(!r.ok)throw Error("quote "+symbol);const j=await r.json(),x=j.chart?.result?.[0];if(!x)throw Error("no quote");const q=x.indicators?.quote?.[0],cl=(q?.close||[]).filter(Number.isFinite),last=cl.at(-1),prev=cl.at(-2)??x.meta?.chartPreviousClose??x.meta?.previousClose;return {price:last,change:last!=null&&prev?((last-prev)/prev)*100:0,history:cl,currency:x.meta?.currency||"",time:x.timestamp?.at(-1)?new Date(x.timestamp.at(-1)*1000):new Date(),source:"Yahoo Finance · "+symbol};}
 function paintMarketTile(key,value,change,sub){const b=document.querySelector('[data-market="'+key+'"]');if(!b)return;const v=b.querySelector(".value");v.textContent=value;v.className="value "+(change>0?"market-up":change<0?"market-down":"market-flat");b.querySelector("small").textContent=sub||marketSources[key];}
@@ -256,7 +256,7 @@ async function loadCachedMarketData(){
    marketCache[key==="TASI"?"tasi":"nomu"]={price:q.index_value,change:q.index_change_percent,time:q.timestamp?new Date(q.timestamp):stamp,source:"SAHMK · "+key,history:[]};
   }
   const gas=d.household_gas;
-  if(gas){const tile=document.querySelector('[data-market="gas"]');if(tile){tile.querySelector(".value").textContent=fmtMarket(gas.cylinder_11kg_sar)+" ر.س / 11 كجم";tile.querySelector("small").textContent="5 كجم: "+fmtMarket(gas.cylinder_5kg_sar)+" ر.س · الخزان: "+fmtMarket(gas.central_tank_per_liter_sar)+" ر.س/لتر · شامل النقل والضريبة";}}
+  if(gas){marketCache.gas={price:gas.cylinder_11kg_sar,change:0,time:gas.effective_date?new Date(gas.effective_date):stamp,source:"غازكو · "+gas.source_url,history:[]};const tile=document.querySelector('[data-market="gas"]');if(tile){tile.querySelector(".value").textContent=fmtMarket(gas.cylinder_11kg_sar)+" ر.س / 11 كجم";tile.querySelector("small").textContent="5 كجم: "+fmtMarket(gas.cylinder_5kg_sar)+" ر.س · الخزان: "+fmtMarket(gas.central_tank_per_liter_sar)+" ر.س/لتر · شامل النقل والضريبة";}}
   const root=document.getElementById("marketEquities");
   if(root){
    root.replaceChildren();
