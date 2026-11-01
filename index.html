@@ -260,13 +260,8 @@ async function yahooQuote(symbol){
 }
 function paintMarketTile(key,value,change,sub){const b=document.querySelector('[data-market="'+key+'"]');if(!b)return;const v=b.querySelector(".value");v.textContent=value;v.className="value "+(change>0?"market-up":change<0?"market-down":"market-flat");b.querySelector("small").textContent=sub||marketSources[key];}
 async function loadMarket(){
- const stamp=new Date();
- const jobs=[["tasi",async()=>{const q=await yahooQuote("^TASI");marketCache.tasi=q;paintMarketTile("tasi",fmtMarket(q.price)+" نقطة",q.change,(q.change>0?"+":"")+fmtMarket(q.change)+"% · "+q.time.toLocaleString("ar-SA")+" · "+q.source+(q.stale?" · قديمة":""))}],
- ["gold",async()=>{const [g,fx]=await Promise.all([yahooQuote("GC=F"),yahooQuote("SAR=X")]);const sar=fx.price||3.75,ounce=g.price;const gram24=ounce/31.1034768*sar;marketCache.gold={...g,history:g.history.map(x=>x/31.1034768*sar)};paintMarketTile("gold","24: "+fmtMarket(gram24)+" ر.س/جم",g.change,"21: "+fmtMarket(gram24*.875)+" ر.س/جم · "+g.time.toLocaleString("ar-SA")+" · "+g.source+(g.stale?" · قديمة":""))}],
- ["oil",async()=>{const q=await yahooQuote("BZ=F");marketCache.oil=q;paintMarketTile("oil",fmtMarket(q.price)+" دولار/برميل",q.change,(q.change>0?"+":"")+fmtMarket(q.change)+"% · "+q.time.toLocaleString("ar-SA")+" · "+q.source+(q.stale?" · قديمة":""))}],
- ["currency",async()=>{const r=await fetch("https://api.frankfurter.app/latest?from=USD&to=SAR,EUR,GBP");if(!r.ok)throw Error("FX");const j=await r.json();marketCache.currency={price:j.rates.SAR,history:[],time:new Date(j.date),source:"Frankfurter (ECB) · USD/SAR"};paintMarketTile("currency","1 دولار = "+fmtMarket(j.rates.SAR)+" ر.س",0,"EUR "+fmtMarket(j.rates.EUR)+" · GBP "+fmtMarket(j.rates.GBP)+" · "+j.date)}]];
- await Promise.allSettled(jobs.map(async([k,fn])=>{try{await fn()}catch(e){paintMarketTile(k,"تعذر جلب البيانات",0,marketSources[k]+" · لا نعرض سعراً غير متحقق")}}));
- $("marketUpdated").textContent="آخر محاولة تحديث: "+stamp.toLocaleString("ar-SA")+" · تُعرض أوقات المصدر عند توفرها.";
+ // Market prices are read only from the repository snapshot; the browser makes no live quote requests.
+ await loadCachedMarketData();
 }
 
 async function loadCachedMarketData(){
@@ -275,6 +270,25 @@ async function loadCachedMarketData(){
   if(!r.ok)throw Error("market cache");
   const d=await r.json();
   const stamp=d.updated_at?new Date(d.updated_at):null;
+  const quotes=d.quotes||{};
+  const showQuote=(key,q,label,unit)=>{
+   if(!q||!Number.isFinite(Number(q.price)))return;
+   const time=q.timestamp?new Date(q.timestamp):stamp;
+   const change=Number(q.change_percent)||0;
+   marketCache[key]={price:Number(q.price),change,history:Array.isArray(q.history)?q.history:[],time,source:q.source||"مصدر خارجي",currency:q.currency||""};
+   const when=time&&!Number.isNaN(time.getTime())?time.toLocaleString("ar-SA"):"وقت المصدر غير متاح";
+   paintMarketTile(key,fmtMarket(Number(q.price))+" "+unit,change,(change>0?"+":"")+fmtMarket(change)+"% · "+when+" · "+(q.source||"مصدر خارجي")+" · محفوظ بالمستودع");
+  };
+  showQuote("tasi",quotes.tasi,"تاسي","نقطة");
+  showQuote("oil",quotes.brent,"برنت","دولار/برميل");
+  const gold=quotes.gold;
+  if(gold&&Number.isFinite(Number(gold.gram24_sar_estimate))){
+   const time=gold.timestamp?new Date(gold.timestamp):stamp;
+   marketCache.gold={price:Number(gold.gram24_sar_estimate),change:Number(gold.change_percent)||0,history:(gold.history||[]).map(x=>x*3.75/31.1034768),time,source:(gold.source||"Yahoo Finance")+" · تحويل تقديري",currency:"SAR/g"};
+   paintMarketTile("gold","24: "+fmtMarket(gold.gram24_sar_estimate)+" ر.س/جم",""+(Number(gold.change_percent)||0),"21: "+fmtMarket(gold.gram21_sar_estimate)+" ر.س/جم · "+(time&&!Number.isNaN(time.getTime())?time.toLocaleString("ar-SA"):"وقت المصدر غير متاح")+" · "+(gold.source||"Yahoo Finance")+" · محفوظ بالمستودع · تقديري قبل المصنعية");
+  }
+  const currencyTile=document.querySelector('[data-market="currency"]');
+  if(currencyTile){currencyTile.querySelector(".value").textContent="سعر مرجعي";currencyTile.querySelector("small").textContent="لا يوجد تحديث يومي محفوظ لهذه العملة حالياً.";}
   for(const key of ["TASI","NOMU"]){
    const q=d.indices?.[key];if(!q)continue;
    const tile=document.querySelector('[data-market="'+(key==="TASI"?"tasi":"nomu")+'"]');
@@ -323,6 +337,6 @@ function saveFavs(a){localStorage.setItem("saudiMarketFavorites",JSON.stringify(
 async function renderFavs(){const box=$("stockList"),a=getFavs();if(!a.length){box.innerHTML='<span class="market-note">لا توجد أسهم مضافة بعد.</span>';return}box.innerHTML="";for(const code of a){const el=document.createElement("div");el.className="market-stock";el.textContent=code+".SR · جارٍ التحميل";const del=document.createElement("button");del.textContent="×";del.title="حذف من المفضلة";del.onclick=()=>saveFavs(getFavs().filter(x=>x!==code));el.appendChild(del);box.appendChild(el);try{const q=await yahooQuote(code+".SR");el.firstChild.textContent=code+".SR · "+fmtMarket(q.price)+" "+q.currency+" · "+(q.change>0?"+":"")+fmtMarket(q.change)+"%";el.title="المصدر: "+q.source+" · "+q.time.toLocaleString("ar-SA")}catch{el.firstChild.textContent=code+".SR · السعر غير متاح من المصدر"}}}
 async function addStock(){const raw=$("stockSearch").value.trim();const m=raw.match(/\d{4,5}/);if(!m){$("stockResults").textContent="أدخل رمز تداول من 4 أو 5 أرقام.";return}const code=m[0];$("stockResults").textContent="جارٍ التحقق من الرمز…";try{const q=await yahooQuote(code+".SR");saveFavs([...getFavs(),code]);$("stockResults").textContent=code+".SR · "+fmtMarket(q.price)+" · تمت الإضافة";$("stockSearch").value=""}catch{$("stockResults").textContent="لم نتمكن من التحقق من السهم حالياً. لن نضيف رمزاً غير متحقق."}}
 function showMarketDetails(key){const q=marketCache[key];$("marketModalTitle").textContent=marketNames[key]||"تفاصيل السعر";$("marketModalMeta").textContent=q?.price!=null?"آخر سعر: "+fmtMarket(q.price)+" · "+(q.change>0?"+":"")+fmtMarket(q.change)+"% · "+(q.time?.toLocaleString("ar-SA")||"وقت غير متاح"):"لا تتوفر قيمة موثقة حالياً لهذا العنصر."; $("marketModalSource").textContent="المصدر: "+(q?.source||marketSources[key]||"غير محدد")+". الأسعار الرسمية الثابتة لا تُعرض حتى يتوفر جدول موثق وتاريخ سريان.";const c=$("marketChart"),ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);const vals=q?.history||[];if(vals.length>1){const lo=Math.min(...vals),hi=Math.max(...vals),span=hi-lo||1;ctx.beginPath();vals.forEach((v,i)=>{const x=20+i*(c.width-40)/(vals.length-1),y=c.height-20-(v-lo)/span*(c.height-40);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.strokeStyle="#a5b77a";ctx.lineWidth=3;ctx.stroke()}else{ctx.fillStyle="#a6b09b";ctx.font="14px sans-serif";ctx.fillText("لا تتوفر بيانات تاريخية للرسم حالياً",120,95)}$("marketModal").classList.add("open")}
-$("marketRefresh").addEventListener("click",()=>{loadMarket();loadCachedMarketData()});$("stockAdd").addEventListener("click",addStock);$("stockSearch").addEventListener("keydown",e=>{if(e.key==="Enter")addStock()});$("marketClose").addEventListener("click",()=>$("marketModal").classList.remove("open"));$("marketModal").addEventListener("click",e=>{if(e.target===$("marketModal"))$("marketModal").classList.remove("open")});$("marketStrip").addEventListener("click",e=>{const tile=e.target.closest("[data-market]");if(tile)showMarketDetails(tile.dataset.market)});renderFavs();loadMarket();loadCachedMarketData();
+$("marketRefresh").addEventListener("click",()=>{loadMarket();loadCachedMarketData()});$("stockAdd").addEventListener("click",addStock);$("stockSearch").addEventListener("keydown",e=>{if(e.key==="Enter")addStock()});$("marketClose").addEventListener("click",()=>$("marketModal").classList.remove("open"));$("marketModal").addEventListener("click",e=>{if(e.target===$("marketModal"))$("marketModal").classList.remove("open")});$("marketStrip").addEventListener("click",e=>{const tile=e.target.closest("[data-market]");if(tile)showMarketDetails(tile.dataset.market)});renderFavs();loadCachedMarketData();
 </script>
 </body></html>
