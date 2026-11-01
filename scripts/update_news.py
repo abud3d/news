@@ -199,7 +199,9 @@ TECH_SOURCES = {
  "TechCrunch":"https://techcrunch.com/feed/",
  "Android Authority":"https://www.androidauthority.com/feed/",
  "GSMArena":"https://www.gsmarena.com/rss-news-reviews.php3",
- "ScienceDaily":"https://www.sciencedaily.com/rss/computers_math/technology.xml",
+ "NASA":"https://www.nasa.gov/feed/",
+ "Ars Technica":"https://feeds.arstechnica.com/arstechnica/index",
+ "WIRED":"https://www.wired.com/feed/rss",
 }
 TECH_DOMAINS=["theverge.com","techcrunch.com","androidauthority.com","gsmarena.com","sciencedaily.com","arstechnica.com","wired.com","engadget.com","cnet.com","9to5google.com"]
 
@@ -208,7 +210,9 @@ def fetch_technology():
  # موجزات متخصصة مباشرة لتغطية العلوم والتقنية والهواتف.
  for name,url in TECH_SOURCES.items():
   try:
-   rows.extend(parse_rss(url,name))
+   feed_rows=parse_rss(url,name)
+   rows.extend(feed_rows)
+   print("TECH_SOURCE:",name,"ok items:",len(feed_rows))
   except Exception as e:
    print("TECH_SOURCE:",name,"unavailable:",str(e)[:120])
  # بحث عربي وإنجليزي محصور بمواقع تقنية متخصصة.
