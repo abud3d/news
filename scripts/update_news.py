@@ -143,13 +143,22 @@ def fetch_google(q):
 def fetch_source_registry():
  results={}; statuses={}
  def one(name,cfg):
+  method="بحث مقيد بنطاق الناشر"
+  rows=[]
   if cfg.get("feed"):
-   rows=parse_rss(cfg["feed"],name)
-   return name,rows,{"status":"ok" if rows else "ok_empty","method":"RSS مباشر","items":len(rows),"checked_at":datetime.now(timezone.utc).isoformat()}
-  rows=fetch_google("site:"+cfg["domain"]+" أخبار السعودية")
+   try:
+    rows=parse_rss(cfg["feed"],name)
+    if rows: method="RSS مباشر"
+   except Exception:
+    rows=[]
+   if not rows:
+    method="بحث مقيد بنطاق الناشر (بديل RSS)"
+    rows=fetch_google("site:"+cfg["domain"]+" أخبار السعودية")
+  else:
+   rows=fetch_google("site:"+cfg["domain"]+" أخبار السعودية")
   rows=[x for x in rows if urllib.parse.urlparse(x.get("url","")).netloc.lower().endswith(cfg["domain"])]
   for x in rows: x["source"]=name
-  return name,rows,{"status":"ok" if rows else "ok_empty","method":"بحث مقيد بنطاق الناشر","items":len(rows),"checked_at":datetime.now(timezone.utc).isoformat()}
+  return name,rows,{"status":"ok" if rows else "ok_empty","method":method,"items":len(rows),"checked_at":datetime.now(timezone.utc).isoformat()}
  with ThreadPoolExecutor(max_workers=8) as pool:
   futures={pool.submit(one,n,c):n for n,c in SOURCE_REGISTRY.items()}
   for f in as_completed(futures):
