@@ -1,8 +1,8 @@
 {
-  "provider": "Initial public-market snapshot (manual seed)",
-  "source_url": "https://www.spa.gov.sa/en/N2713469",
+  "provider": "Yahoo Finance",
+  "source_url": "https://finance.yahoo.com/",
   "timezone": "Asia/Riyadh",
-  "updated_at": "2026-11-01T07:30:00Z",
+  "updated_at": "2026-11-01T18:06:09+00:00",
   "indices": {},
   "markets": {
     "TASI": {
@@ -31,7 +31,7 @@
     "source": "GASCO",
     "source_url": "https://gasco.com.sa/"
   },
-  "snapshot_note": "أول تسجيل يدوي من مصادر منشورة؛ لا توجد جلسة تداول سعودية يوم الأحد. سيتم تحديث هذه القيم آلياً بعد إغلاق كل جلسة من الأحد إلى الخميس، مع الاحتفاظ بآخر قيمة ناجحة.",
+  "snapshot_note": "تحديث مجدول مرة واحدة بعد إغلاق السوق السعودي؛ القيم السابقة تبقى محفوظة إذا تعذر جلب سعر جديد.",
   "quotes": {
     "tasi": {
       "symbol": "^TASI",
@@ -45,26 +45,34 @@
     },
     "brent": {
       "symbol": "BZ=F",
-      "price": 117.64,
-      "change_percent": 2.4,
+      "price": 113.43000030517578,
+      "change_percent": -1.262184003228679,
       "currency": "USD",
-      "timestamp": "2026-10-30T23:00:00Z",
-      "source": "Reuters (نقلته Aktualita)؛ إغلاق الجمعة 30 أكتوبر 2026 لعقد ديسمبر",
-      "source_url": "https://aktualita.co/en/international/global-oil-prices-surge-sharply-brent-hits-us117-and-wti-us104-amid-middle-east-conflict",
-      "history": []
+      "timestamp": "2026-10-30T04:00:00+00:00",
+      "source": "Yahoo Finance (query1.finance.yahoo.com)",
+      "history": [
+        113.87999725341797,
+        115.31999969482422,
+        114.87999725341797,
+        113.43000030517578
+      ]
     },
     "gold": {
       "symbol": "GC=F",
-      "price": 3875.65,
-      "change_percent": 0,
-      "currency": "USD/oz",
-      "timestamp": "2026-11-01T05:04:48+03:00",
-      "source": "GoldPriceZ؛ سعر أونصة الذهب الفوري",
-      "source_url": "https://goldpricez.com/sa",
-      "gram24_sar_estimate": 467.63,
-      "gram21_sar_estimate": 409.18,
-      "conversion_note": "تقديري على أساس 3.75 ريال لكل دولار و31.1035 جرام للأونصة؛ قبل المصنعية والضريبة.",
-      "history": []
+      "price": 3898.89990234375,
+      "change_percent": -3.286699489251066,
+      "currency": "USD",
+      "timestamp": "2026-10-30T04:00:00+00:00",
+      "source": "Yahoo Finance (query1.finance.yahoo.com)",
+      "history": [
+        4074.60009765625,
+        4051.60009765625,
+        4031.39990234375,
+        3898.89990234375
+      ],
+      "gram24_sar_estimate": 470.0720349626336,
+      "gram21_sar_estimate": 411.3130305923044,
+      "conversion_note": "تقديري قبل المصنعية؛ تحويل على أساس 3.75 ريال لكل دولار"
     }
   }
 }
