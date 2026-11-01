@@ -1,8 +1,8 @@
 {
-  "provider": "SAHMK",
-  "source_url": "https://www.sahmk.sa/developers/docs/stocks",
+  "provider": "Initial public-market snapshot (manual seed)",
+  "source_url": "https://www.spa.gov.sa/en/N2713469",
   "timezone": "Asia/Riyadh",
-  "updated_at": null,
+  "updated_at": "2026-11-01T07:30:00Z",
   "indices": {},
   "markets": {
     "TASI": {
@@ -30,5 +30,41 @@
     "includes_vat_and_transport": true,
     "source": "GASCO",
     "source_url": "https://gasco.com.sa/"
+  },
+  "snapshot_note": "أول تسجيل يدوي من مصادر منشورة؛ لا توجد جلسة تداول سعودية يوم الأحد. سيتم تحديث هذه القيم آلياً بعد إغلاق كل جلسة من الأحد إلى الخميس، مع الاحتفاظ بآخر قيمة ناجحة.",
+  "quotes": {
+    "tasi": {
+      "symbol": "^TASI",
+      "price": 9921.5,
+      "change_percent": -1.02,
+      "currency": "SAR",
+      "timestamp": "2026-10-29T13:00:00+03:00",
+      "source": "وكالة الأنباء السعودية نقلاً عن تداول؛ إغلاق الخميس 29 أكتوبر 2026",
+      "source_url": "https://www.spa.gov.sa/en/N2713469",
+      "history": []
+    },
+    "brent": {
+      "symbol": "BZ=F",
+      "price": 117.64,
+      "change_percent": 2.4,
+      "currency": "USD",
+      "timestamp": "2026-10-30T23:00:00Z",
+      "source": "Reuters (نقلته Aktualita)؛ إغلاق الجمعة 30 أكتوبر 2026 لعقد ديسمبر",
+      "source_url": "https://aktualita.co/en/international/global-oil-prices-surge-sharply-brent-hits-us117-and-wti-us104-amid-middle-east-conflict",
+      "history": []
+    },
+    "gold": {
+      "symbol": "GC=F",
+      "price": 3875.65,
+      "change_percent": 0,
+      "currency": "USD/oz",
+      "timestamp": "2026-11-01T05:04:48+03:00",
+      "source": "GoldPriceZ؛ سعر أونصة الذهب الفوري",
+      "source_url": "https://goldpricez.com/sa",
+      "gram24_sar_estimate": 467.63,
+      "gram21_sar_estimate": 409.18,
+      "conversion_note": "تقديري على أساس 3.75 ريال لكل دولار و31.1035 جرام للأونصة؛ قبل المصنعية والضريبة.",
+      "history": []
+    }
   }
 }
