@@ -2,6 +2,7 @@
 """Fetch Saudi market data after the close; keep the last good snapshot on failures."""
 import json, os, sys, urllib.parse, urllib.request
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
 BASE = "https://api.sahmk.sa/api/v1"
@@ -36,6 +37,16 @@ result["source_url"] = "https://www.sahmk.sa/developers/docs/stocks"
 # Stage 1 — always request both market indices before any individual stock lists.
 for market in ("TASI", "NOMU"):
     result["indices"][market] = api("/market/summary/", {"index": market})
+
+# Do not relabel a previous session as today's update on weekends or exchange holidays.
+riyadh_today = datetime.now(ZoneInfo("Asia/Riyadh")).date()
+for market, summary in result["indices"].items():
+    source_stamp = summary.get("timestamp")
+    if not source_stamp:
+        raise SystemExit(f"Missing source timestamp for {market}; previous snapshot retained")
+    parsed_stamp = datetime.fromisoformat(source_stamp.replace("Z", "+00:00"))
+    if parsed_stamp.astimezone(ZoneInfo("Asia/Riyadh")).date() != riyadh_today:
+        raise SystemExit(f"{market} has no new session data for {riyadh_today}; previous snapshot retained")
 
 # Stage 2 — main-market leaders first: turnover value and volume.
 # Stage 3 — then gainers/losers, followed by Nomu in the same priority order.
