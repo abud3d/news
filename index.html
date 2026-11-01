@@ -281,6 +281,11 @@ async function loadCachedMarketData(){
   };
   showQuote("tasi",quotes.tasi,"تاسي","نقطة");
   showQuote("oil",quotes.brent,"برنت","دولار/برميل");
+  for(const [key,label] of [["tasi","تاسي"],["oil","برنت"],["gold","الذهب"]]){
+   const q=key==="gold"?quotes.gold:quotes[key==="oil"?"brent":key];
+   const hasValue=key==="gold"?Number.isFinite(Number(q?.gram24_sar_estimate)):Number.isFinite(Number(q?.price));
+   if(!hasValue)paintMarketTile(key,"بانتظار أول تحديث محفوظ",0,"سيتم جلبه بعد إغلاق السوق وحفظه في المستودع.");
+  }
   const gold=quotes.gold;
   if(gold&&Number.isFinite(Number(gold.gram24_sar_estimate))){
    const time=gold.timestamp?new Date(gold.timestamp):stamp;
@@ -329,7 +334,11 @@ async function loadCachedMarketData(){
    }
   }
   $("marketUpdated").textContent=stamp?"آخر تحديث السوق: "+stamp.toLocaleString("ar-SA")+" · المصدر: SAHMK · نهاية التداول":"لم يتم تحديث بيانات السوق بعد.";
- }catch(e){console.warn("Cached market data unavailable",e);}
+ }catch(e){
+  console.warn("Cached market data unavailable",e);
+  for(const key of ["tasi","oil","gold"])paintMarketTile(key,"تعذر قراءة ملف الأسعار",0,"تحقق من اتصال الموقع؛ لن يتم جلب الأسعار مباشرة من المتصفح.");
+  $("marketUpdated").textContent="تعذر قراءة ملف data/market.json من المستودع.";
+ }
 }
 
 function getFavs(){try{return JSON.parse(localStorage.getItem("saudiMarketFavorites")||"[]").filter(x=>/^\d{4,5}$/.test(x))}catch{return []}}
@@ -337,6 +346,6 @@ function saveFavs(a){localStorage.setItem("saudiMarketFavorites",JSON.stringify(
 async function renderFavs(){const box=$("stockList"),a=getFavs();if(!a.length){box.innerHTML='<span class="market-note">لا توجد أسهم مضافة بعد.</span>';return}box.innerHTML="";for(const code of a){const el=document.createElement("div");el.className="market-stock";el.textContent=code+".SR · جارٍ التحميل";const del=document.createElement("button");del.textContent="×";del.title="حذف من المفضلة";del.onclick=()=>saveFavs(getFavs().filter(x=>x!==code));el.appendChild(del);box.appendChild(el);try{const q=await yahooQuote(code+".SR");el.firstChild.textContent=code+".SR · "+fmtMarket(q.price)+" "+q.currency+" · "+(q.change>0?"+":"")+fmtMarket(q.change)+"%";el.title="المصدر: "+q.source+" · "+q.time.toLocaleString("ar-SA")}catch{el.firstChild.textContent=code+".SR · السعر غير متاح من المصدر"}}}
 async function addStock(){const raw=$("stockSearch").value.trim();const m=raw.match(/\d{4,5}/);if(!m){$("stockResults").textContent="أدخل رمز تداول من 4 أو 5 أرقام.";return}const code=m[0];$("stockResults").textContent="جارٍ التحقق من الرمز…";try{const q=await yahooQuote(code+".SR");saveFavs([...getFavs(),code]);$("stockResults").textContent=code+".SR · "+fmtMarket(q.price)+" · تمت الإضافة";$("stockSearch").value=""}catch{$("stockResults").textContent="لم نتمكن من التحقق من السهم حالياً. لن نضيف رمزاً غير متحقق."}}
 function showMarketDetails(key){const q=marketCache[key];$("marketModalTitle").textContent=marketNames[key]||"تفاصيل السعر";$("marketModalMeta").textContent=q?.price!=null?"آخر سعر: "+fmtMarket(q.price)+" · "+(q.change>0?"+":"")+fmtMarket(q.change)+"% · "+(q.time?.toLocaleString("ar-SA")||"وقت غير متاح"):"لا تتوفر قيمة موثقة حالياً لهذا العنصر."; $("marketModalSource").textContent="المصدر: "+(q?.source||marketSources[key]||"غير محدد")+". الأسعار الرسمية الثابتة لا تُعرض حتى يتوفر جدول موثق وتاريخ سريان.";const c=$("marketChart"),ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);const vals=q?.history||[];if(vals.length>1){const lo=Math.min(...vals),hi=Math.max(...vals),span=hi-lo||1;ctx.beginPath();vals.forEach((v,i)=>{const x=20+i*(c.width-40)/(vals.length-1),y=c.height-20-(v-lo)/span*(c.height-40);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.strokeStyle="#a5b77a";ctx.lineWidth=3;ctx.stroke()}else{ctx.fillStyle="#a6b09b";ctx.font="14px sans-serif";ctx.fillText("لا تتوفر بيانات تاريخية للرسم حالياً",120,95)}$("marketModal").classList.add("open")}
-$("marketRefresh").addEventListener("click",()=>{loadMarket();loadCachedMarketData()});$("stockAdd").addEventListener("click",addStock);$("stockSearch").addEventListener("keydown",e=>{if(e.key==="Enter")addStock()});$("marketClose").addEventListener("click",()=>$("marketModal").classList.remove("open"));$("marketModal").addEventListener("click",e=>{if(e.target===$("marketModal"))$("marketModal").classList.remove("open")});$("marketStrip").addEventListener("click",e=>{const tile=e.target.closest("[data-market]");if(tile)showMarketDetails(tile.dataset.market)});renderFavs();loadCachedMarketData();
+$("marketRefresh").addEventListener("click",()=>loadMarket());$("stockAdd").addEventListener("click",addStock);$("stockSearch").addEventListener("keydown",e=>{if(e.key==="Enter")addStock()});$("marketClose").addEventListener("click",()=>$("marketModal").classList.remove("open"));$("marketModal").addEventListener("click",e=>{if(e.target===$("marketModal"))$("marketModal").classList.remove("open")});$("marketStrip").addEventListener("click",e=>{const tile=e.target.closest("[data-market]");if(tile)showMarketDetails(tile.dataset.market)});renderFavs();loadCachedMarketData();
 </script>
 </body></html>
