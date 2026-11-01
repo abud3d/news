@@ -233,13 +233,37 @@ const marketCache={};
 const marketNames={tasi:"مؤشر تاسي",nomu:"مؤشر نمو",gold:"الذهب",oil:"نفط برنت",currency:"العملات",gas:"الغاز المنزلي",fuel:"الوقود",electricity:"الكهرباء",water:"المياه"};
 const marketSources={tasi:"Yahoo Finance (^TASI)؛ مصدر سوقي غير رسمي",gold:"Yahoo Finance (GC=F)؛ تحويل من الأونصة إلى الجرام والريال",oil:"Yahoo Finance (BZ=F)",currency:"Frankfurter / ECB؛ أسعار مرجعية",gas:"غازكو · أسعار تعبئة الغاز المنزلي شاملة النقل والضريبة",fuel:"أرامكو السعودية — يلزم ربط جدول الأسعار الرسمي",electricity:"الشركة السعودية للكهرباء / هيئة تنظيم المياه والكهرباء",water:"شركة المياه الوطنية / هيئة تنظيم المياه والكهرباء"};
 const fmtMarket=n=>Number.isFinite(n)?new Intl.NumberFormat("ar-SA",{maximumFractionDigits:2}).format(n):"—";
-async function yahooQuote(symbol){const u="https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(symbol)+"?range=5d&interval=1d";const r=await fetch(u);if(!r.ok)throw Error("quote "+symbol);const j=await r.json(),x=j.chart?.result?.[0];if(!x)throw Error("no quote");const q=x.indicators?.quote?.[0],cl=(q?.close||[]).filter(Number.isFinite),last=cl.at(-1),prev=cl.at(-2)??x.meta?.chartPreviousClose??x.meta?.previousClose;return {price:last,change:last!=null&&prev?((last-prev)/prev)*100:0,history:cl,currency:x.meta?.currency||"",time:x.timestamp?.at(-1)?new Date(x.timestamp.at(-1)*1000):new Date(),source:"Yahoo Finance · "+symbol};}
+async function yahooQuote(symbol){
+ const path="/v8/finance/chart/"+encodeURIComponent(symbol)+"?range=5d&interval=1d";
+ const urls=[
+  ["Yahoo Finance", "https://query1.finance.yahoo.com"+path],
+  ["Yahoo Finance mirror", "https://query2.finance.yahoo.com"+path],
+  ["Yahoo Finance عبر وسيط بديل", "https://api.allorigins.win/raw?url="+encodeURIComponent("https://query1.finance.yahoo.com"+path)]
+ ];
+ let lastError;
+ for(const [provider,url] of urls){
+  try{
+   const r=await fetch(url,{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
+   const j=await r.json(),x=j.chart?.result?.[0];if(!x)throw Error("no quote");
+   const q=x.indicators?.quote?.[0],cl=(q?.close||[]).filter(Number.isFinite),last=cl.at(-1),prev=cl.at(-2)??x.meta?.chartPreviousClose??x.meta?.previousClose;
+   if(!Number.isFinite(last))throw Error("empty quote");
+   const item={price:last,change:last!=null&&prev?((last-prev)/prev)*100:0,history:cl,currency:x.meta?.currency||"",time:x.timestamp?.at(-1)?new Date(x.timestamp.at(-1)*1000):new Date(),source:provider+" · "+symbol,stale:false};
+   try{localStorage.setItem("saudiMarketQuote:"+symbol,JSON.stringify(item))}catch{}
+   return item;
+  }catch(e){lastError=e}
+ }
+ try{
+  const saved=JSON.parse(localStorage.getItem("saudiMarketQuote:"+symbol)||"null");
+  if(saved&&Number.isFinite(saved.price))return {...saved,stale:true,source:(saved.source||"Yahoo Finance")+" · آخر قيمة محفوظة؛ تعذر الاتصال بالمصادر"};
+ }catch{}
+ throw lastError||Error("quote unavailable "+symbol);
+}
 function paintMarketTile(key,value,change,sub){const b=document.querySelector('[data-market="'+key+'"]');if(!b)return;const v=b.querySelector(".value");v.textContent=value;v.className="value "+(change>0?"market-up":change<0?"market-down":"market-flat");b.querySelector("small").textContent=sub||marketSources[key];}
 async function loadMarket(){
  const stamp=new Date();
- const jobs=[["tasi",async()=>{const q=await yahooQuote("^TASI");marketCache.tasi=q;paintMarketTile("tasi",fmtMarket(q.price)+" نقطة",q.change,(q.change>0?"+":"")+fmtMarket(q.change)+"% · "+q.time.toLocaleString("ar-SA"))}],
- ["gold",async()=>{const [g,fx]=await Promise.all([yahooQuote("GC=F"),yahooQuote("SAR=X")]);const sar=fx.price||3.75,ounce=g.price;const gram24=ounce/31.1034768*sar;marketCache.gold={...g,history:g.history.map(x=>x/31.1034768*sar)};paintMarketTile("gold","24: "+fmtMarket(gram24)+" ر.س/جم",g.change,"21: "+fmtMarket(gram24*.875)+" ر.س/جم · "+g.time.toLocaleString("ar-SA"))}],
- ["oil",async()=>{const q=await yahooQuote("BZ=F");marketCache.oil=q;paintMarketTile("oil",fmtMarket(q.price)+" دولار/برميل",q.change,(q.change>0?"+":"")+fmtMarket(q.change)+"% · "+q.time.toLocaleString("ar-SA"))}],
+ const jobs=[["tasi",async()=>{const q=await yahooQuote("^TASI");marketCache.tasi=q;paintMarketTile("tasi",fmtMarket(q.price)+" نقطة",q.change,(q.change>0?"+":"")+fmtMarket(q.change)+"% · "+q.time.toLocaleString("ar-SA")+" · "+q.source+(q.stale?" · قديمة":""))}],
+ ["gold",async()=>{const [g,fx]=await Promise.all([yahooQuote("GC=F"),yahooQuote("SAR=X")]);const sar=fx.price||3.75,ounce=g.price;const gram24=ounce/31.1034768*sar;marketCache.gold={...g,history:g.history.map(x=>x/31.1034768*sar)};paintMarketTile("gold","24: "+fmtMarket(gram24)+" ر.س/جم",g.change,"21: "+fmtMarket(gram24*.875)+" ر.س/جم · "+g.time.toLocaleString("ar-SA")+" · "+g.source+(g.stale?" · قديمة":""))}],
+ ["oil",async()=>{const q=await yahooQuote("BZ=F");marketCache.oil=q;paintMarketTile("oil",fmtMarket(q.price)+" دولار/برميل",q.change,(q.change>0?"+":"")+fmtMarket(q.change)+"% · "+q.time.toLocaleString("ar-SA")+" · "+q.source+(q.stale?" · قديمة":""))}],
  ["currency",async()=>{const r=await fetch("https://api.frankfurter.app/latest?from=USD&to=SAR,EUR,GBP");if(!r.ok)throw Error("FX");const j=await r.json();marketCache.currency={price:j.rates.SAR,history:[],time:new Date(j.date),source:"Frankfurter (ECB) · USD/SAR"};paintMarketTile("currency","1 دولار = "+fmtMarket(j.rates.SAR)+" ر.س",0,"EUR "+fmtMarket(j.rates.EUR)+" · GBP "+fmtMarket(j.rates.GBP)+" · "+j.date)}]];
  await Promise.allSettled(jobs.map(async([k,fn])=>{try{await fn()}catch(e){paintMarketTile(k,"تعذر جلب البيانات",0,marketSources[k]+" · لا نعرض سعراً غير متحقق")}}));
  $("marketUpdated").textContent="آخر محاولة تحديث: "+stamp.toLocaleString("ar-SA")+" · تُعرض أوقات المصدر عند توفرها.";
