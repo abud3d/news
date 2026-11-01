@@ -147,7 +147,7 @@ async function loadNews(){
   render();
   setUpdateLabel("updated",cache.updated_at,"آخر تحديث للمستودع ");
   const stale=cache.categories?.[activeQuery]?.status==="stale";
-  const sourceStates=Object.values(cache.source_status||{});const sourceOk=sourceStates.filter(x=>x.status==="ok"||x.status==="ok_empty").length;const sourceTotal=sourceStates.length;const sourceHealth=sourceTotal?" · المصادر المتاحة "+sourceOk+"/"+sourceTotal:"";$("feedStatus").textContent=activeCity?(cache.city_news?.[cityCodes[activeCity]]?.status==="stale"?"تعذر تحديث أخبار المنطقة؛ نعرض آخر نسخة محفوظة.":"أخبار المناطق من المصادر الصحفية المحددة"):(stale?"تعذر تحديث هذا القسم؛ نعرض آخر نسخة محفوظة.":"تحديث الموجز آلياً كل 15 دقيقة"+sourceHealth);
+  const sourceStates=Object.values(cache.source_status||{});const sourceOk=sourceStates.filter(x=>x.status==="ok"||x.status==="ok_empty").length;const sourceTotal=sourceStates.length;const sourceHealth=sourceTotal?" · المصادر المفحوصة "+sourceOk+"/"+sourceTotal:"";$("feedStatus").textContent=activeCity?(cache.city_news?.[cityCodes[activeCity]]?.status==="stale"?"تعذر تحديث أخبار المنطقة؛ نعرض آخر نسخة محفوظة.":"أخبار المناطق من المصادر الصحفية المحددة"):(stale?"تعذر تحديث هذا القسم؛ نعرض آخر نسخة محفوظة.":"تحديث الموجز آلياً كل 15 دقيقة"+sourceHealth);
  }catch(e){
   if(articles.length){render();$("feedStatus").textContent="تعذر تحديث النسخة؛ نعرض آخر أخبار محمّلة."}
   else $("feed").innerHTML='<div class="empty">لم تصل بيانات هذا القسم بعد. سيظهر المحتوى بعد أول تحديث ناجح للمستودع.</div>';
