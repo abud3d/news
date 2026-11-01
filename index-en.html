@@ -46,7 +46,7 @@ footer{border-top:1px solid var(--line);margin-top:35px;padding:22px 0 30px;colo
 </head>
 <body>
 <header class="topbar"><div class="wrap toprow">
-<a class="brand" href="#"><span class="logo">AI</span><span><strong>Saudi AI</strong><small>Saudi AI · موجز الأخبار</small></span></a>
+<a class="brand" href="#"><span class="logo">AI</span><span><strong>Saudi AI</strong><small>Saudi AI · News Briefing</small></span></a>
 <div class="tools"><a class="datebox" href="index.html" lang="ar" dir="rtl" style="white-space:nowrap">العربية</a><a class="datebox" href="index-en.html" lang="en" dir="ltr" style="white-space:nowrap">English</a>
 <details class="guide-menu"><summary aria-label="Directory & Services" title="Directory & Services">☷</summary><nav class="guide-dropdown" aria-label="Directory & Services menu"><a href="services-en.html">1. Services</a><a href="directory-en.html">2. Directory</a></nav></details>
 <div class="datebox"><b id="clock">--:--:--</b><span id="hijri">Loading Hijri date…</span></div>
@@ -149,20 +149,20 @@ let cachedNews=null;
 async function readNewsCache(){const r=await fetch("data/news.json?ts="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("news cache "+r.status);const j=await r.json();if(!j||!j.categories)throw Error("invalid news cache");cachedNews=j;return j}
 function cachedCategory(key){return cachedNews?.categories?.[key]?.items||[]}
 function relativeTime(s){if(!s)return "Unknown";const d=new Date(s);if(isNaN(d))return "Unknown";const sec=Math.max(0,Math.floor((Date.now()-d.getTime())/1000));if(sec<60)return "Now";if(sec<3600)return " ago"+Math.floor(sec/60)+" دقيقة";if(sec<86400)return " ago"+Math.floor(sec/3600)+" ساعة";if(sec<2592000)return " ago"+Math.floor(sec/86400)+" يوم";return new Intl.DateTimeFormat("ar-SA",{dateStyle:"medium",timeStyle:"short"}).format(d)}
-function setUpdateLabel(id,t,prefix){const el=$(id);if(!el)return;const count=id==="updated"&&cachedNews&&Number.isFinite(Number(cachedNews.fetched_news_count))?" · عدد الأخبار المسحوبة: "+Number(cachedNews.fetched_news_count):"";el.textContent=prefix+relativeTime(t)+count;el.title=t?new Intl.DateTimeFormat("ar-SA",{dateStyle:"medium",timeStyle:"short"}).format(new Date(t)):""}
+function setUpdateLabel(id,t,prefix){const el=$(id);if(!el)return;const count=id==="updated"&&cachedNews&&Number.isFinite(Number(cachedNews.fetched_news_count))?" · Stories fetched: "+Number(cachedNews.fetched_news_count):"";el.textContent=prefix+relativeTime(t)+count;el.title=t?new Intl.DateTimeFormat("ar-SA",{dateStyle:"medium",timeStyle:"short"}).format(new Date(t)):""}
 function cacheTime(){const t=cachedNews?.updated_at;return t?relativeTime(t):"The first update has not completed yet"}
 let cachedOffersUpdatedAt=null;
-setInterval(()=>{if(cachedNews?.updated_at&&$("updated").textContent)setUpdateLabel("updated",cachedNews.updated_at,"Last repository update ");if(cachedOffersUpdatedAt&&$("offersUpdated").textContent)setUpdateLabel("offersUpdated",cachedOffersUpdatedAt,"آخر تحديث ")},60000)
+setInterval(()=>{if(cachedNews?.updated_at&&$("updated").textContent)setUpdateLabel("updated",cachedNews.updated_at,"Last repository update ");if(cachedOffersUpdatedAt&&$("offersUpdated").textContent)setUpdateLabel("offersUpdated",cachedOffersUpdatedAt,"Last updated ")},60000)
 async function loadOffers(){
  const box=$("offersFeed");box.innerHTML='<li class="empty">Loading posts…</li>';
  try{
   const response=await fetch("data/offers.json?ts="+Date.now(),{cache:"no-store"});
   if(!response.ok)throw Error("offers cache "+response.status);
   const data=await response.json(),items=(data.items||[]).slice(0,30);
-  if(!items.length)throw Error("لا توجد منشورات متاحة حالياً");
+  if(!items.length)throw Error("No posts are currently available");
   box.innerHTML=items.map(a=>'<li><a href="'+esc(a.url)+'" target="_blank" rel="noopener">'+esc(a.title)+'</a><span class="post-meta">'+esc(a.source||"SnapFlyer")+'</span></li>').join("");
-  cachedOffersUpdatedAt=data.updated_at||null;setUpdateLabel("offersUpdated",cachedOffersUpdatedAt,"آخر تحديث ");
- }catch(err){box.innerHTML='<li class="empty">Unable to retrieve posts now. Please try again later.</li>';$("offersUpdated").textContent="تعذر التحديث"}
+  cachedOffersUpdatedAt=data.updated_at||null;setUpdateLabel("offersUpdated",cachedOffersUpdatedAt,"Last updated ");
+ }catch(err){box.innerHTML='<li class="empty">Unable to retrieve posts now. Please try again later.</li>';$("offersUpdated").textContent="Update failed"}
 }
 async function loadNews(){
  visibleCount=10;$("loadMore").style.display="none";
@@ -173,7 +173,7 @@ async function loadNews(){
   else if(activeQuery==="__CYBER__")items=cachedCategory("__CYBER__");
   else if(activeQuery.includes("Hacker News"))items=cachedCategory("HACKER_NEWS");
   else items=cachedCategory(activeQuery);
-  if(!items.length)throw Error("لا توجد بيانات مخزنة لهذا القسم بعد");
+  if(!items.length)throw Error("No cached data is available for this section yet");
   articles=items.slice().sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
   render();
   setUpdateLabel("updated",cache.updated_at,"Last repository update ");
@@ -203,7 +203,7 @@ async function loadSports(){
    const groups=j.children||[];let rows=[];groups.forEach(g=>(g.standings?.entries||[]).forEach(e=>rows.push({team:e.team?.displayName||"—",stats:Object.fromEntries((e.stats||[]).map(s=>[s.name,s.displayValue??s.value]))})));
    if(!rows.length)throw Error("empty table");
    const stat=(x,...keys)=>{for(const k of keys)if(x.stats[k]!==undefined)return x.stats[k];return "—"};
-   box.innerHTML='<div style="overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap"><thead><tr>'+["م","الفريق","لعب","فاز","تعادل","خسر","له","عليه","النقاط"].map(x=>'<th style="padding:9px;border-bottom:1px solid var(--line);text-align:right;color:var(--olive2)">'+x+'</th>').join("")+'</tr></thead><tbody>'+rows.map((x,i)=>'<tr>'+['<td style="padding:9px;border-bottom:1px solid var(--line)">'+(i+1)+'</td>','<td style="padding:9px;border-bottom:1px solid var(--line);font-weight:700">'+esc(x.team)+'</td>',...[[ "gamesPlayed","played"],["wins"],["ties","draws"],["losses"],["pointsFor","goalsFor"],["pointsAgainst","goalsAgainst"],["points"]].map(keys=>'<td style="padding:9px;border-bottom:1px solid var(--line)">'+esc(stat(x,...keys))+'</td>')].join("")+'</tr>').join("")+'</tbody></table></div>';
+   box.innerHTML='<div style="overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap"><thead><tr>'+["م","Team","Played","Won","Drawn","Lost","For","Against","Points"].map(x=>'<th style="padding:9px;border-bottom:1px solid var(--line);text-align:right;color:var(--olive2)">'+x+'</th>').join("")+'</tr></thead><tbody>'+rows.map((x,i)=>'<tr>'+['<td style="padding:9px;border-bottom:1px solid var(--line)">'+(i+1)+'</td>','<td style="padding:9px;border-bottom:1px solid var(--line);font-weight:700">'+esc(x.team)+'</td>',...[[ "gamesPlayed","played"],["wins"],["ties","draws"],["losses"],["pointsFor","goalsFor"],["pointsAgainst","goalsAgainst"],["points"]].map(keys=>'<td style="padding:9px;border-bottom:1px solid var(--line)">'+esc(stat(x,...keys))+'</td>')].join("")+'</tr>').join("")+'</tbody></table></div>';
   }else{
    const now=new Date(),start=new Date(now);start.setDate(start.getDate()-35);const end=new Date(now);end.setDate(end.getDate()+35);
    const fmt=d=>d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0");
@@ -224,21 +224,21 @@ $("categories").addEventListener("click",e=>{const b=e.target.closest("button[da
 $("sportLeagues").addEventListener("click",e=>{const b=e.target.closest("button[data-league]");if(!b)return;currentLeague=b.dataset.league;document.querySelectorAll("#sportLeagues .chip").forEach(x=>x.classList.toggle("active",x===b));loadSports()});
 $("sportViews").addEventListener("click",e=>{const b=e.target.closest("button[data-view]");if(!b)return;sportView=b.dataset.view;document.querySelectorAll("#sportViews .chip").forEach(x=>x.classList.toggle("active",x===b));loadSports()});
 
-$("categories").addEventListener("click",e=>{const b=e.target.closest("button[data-q],button[data-cyber]");if(!b)return;$("sportsPanel").style.display="none";$("offersPanel").style.display="none";$("feed").style.display="flex";document.querySelectorAll("#categories .chip").forEach(x=>x.classList.toggle("active",x===b));activeQuery=b.dataset.cyber?"__CYBER__":b.dataset.q;activeCity="";document.querySelectorAll("#cities .chip").forEach(x=>x.classList.toggle("active",x.dataset.city===""));$("feedTitle").textContent=b.textContent+" · الأخبار";loadNews()});
-$("cities").addEventListener("click",e=>{const b=e.target.closest("button[data-city]");if(!b)return;$("marketPanel").hidden=true;document.querySelectorAll("#cities .chip").forEach(x=>x.classList.toggle("active",x===b));activeCity=b.dataset.city;$("sportsPanel").style.display="none";$("offersPanel").style.display="none";$("feed").style.display="flex";$("feedTitle").textContent=activeCity?"أخبار "+activeCity:"Latest News";loadNews()});
+$("categories").addEventListener("click",e=>{const b=e.target.closest("button[data-q],button[data-cyber]");if(!b)return;$("sportsPanel").style.display="none";$("offersPanel").style.display="none";$("feed").style.display="flex";document.querySelectorAll("#categories .chip").forEach(x=>x.classList.toggle("active",x===b));activeQuery=b.dataset.cyber?"__CYBER__":b.dataset.q;activeCity="";document.querySelectorAll("#cities .chip").forEach(x=>x.classList.toggle("active",x.dataset.city===""));$("feedTitle").textContent=b.textContent+" · News";loadNews()});
+$("cities").addEventListener("click",e=>{const b=e.target.closest("button[data-city]");if(!b)return;$("marketPanel").hidden=true;document.querySelectorAll("#cities .chip").forEach(x=>x.classList.toggle("active",x===b));activeCity=b.dataset.city;$("sportsPanel").style.display="none";$("offersPanel").style.display="none";$("feed").style.display="flex";$("feedTitle").textContent=activeCity?"News: "+activeCity:"Latest News";loadNews()});
 $("city").addEventListener("change",()=>{loadPrayer();if(activeQuery==="السعودية طقس")loadNews()});loadPrayer();loadNews();setInterval(loadNews,15*60*1000);
 
 /* Economy market dashboard: values are labelled with their provider and fetch time. */
 const marketCache={};
-const marketNames={tasi:"مؤشر تاسي",nomu:"مؤشر نمو",gold:"الذهب",oil:"Brent Crude",currency:"Currencies",gas:"Household Gas",fuel:"Fuel",electricity:"Electricity",water:"Water"};
-const marketSources={tasi:"Yahoo Finance (^TASI)؛ مصدر سوقي غير رسمي",gold:"Yahoo Finance (GC=F)؛ تحويل من الأونصة إلى الجرام والريال",oil:"Yahoo Finance (BZ=F)",currency:"Frankfurter / ECB؛ أسعار مرجعية",gas:"غازكو · أسعار تعبئة الغاز المنزلي شاملة النقل والضريبة",fuel:"أرامكو السعودية — يلزم ربط جدول الأسعار الرسمي",electricity:"الشركة السعودية للكهرباء / هيئة تنظيم المياه والكهرباء",water:"شركة المياه الوطنية / هيئة تنظيم المياه والكهرباء"};
+const marketNames={tasi:"TASI Index",nomu:"NOMU Index",gold:"Gold",oil:"Brent Crude",currency:"Currencies",gas:"Household Gas",fuel:"Fuel",electricity:"Electricity",water:"Water"};
+const marketSources={tasi:"Yahoo Finance (^TASI) · Unofficial market source",gold:"Yahoo Finance (GC=F) · Converted from ounce to gram and SAR",oil:"Yahoo Finance (BZ=F)",currency:"Frankfurter / ECB · Reference rates",gas:"Gasco · Household gas refill prices, including delivery and VAT",fuel:"Saudi Aramco · Official price table integration pending",electricity:"Saudi Electricity Company / Water and Electricity Regulatory Authority",water:"National Water Company / Water and Electricity Regulatory Authority"};
 const fmtMarket=n=>Number.isFinite(n)?new Intl.NumberFormat("ar-SA",{maximumFractionDigits:2}).format(n):"—";
 async function yahooQuote(symbol){
  const path="/v8/finance/chart/"+encodeURIComponent(symbol)+"?range=5d&interval=1d";
  const urls=[
   ["Yahoo Finance", "https://query1.finance.yahoo.com"+path],
   ["Yahoo Finance mirror", "https://query2.finance.yahoo.com"+path],
-  ["Yahoo Finance عبر وسيط بديل", "https://api.allorigins.win/raw?url="+encodeURIComponent("https://query1.finance.yahoo.com"+path)]
+  ["Yahoo Finance via an alternative proxy", "https://api.allorigins.win/raw?url="+encodeURIComponent("https://query1.finance.yahoo.com"+path)]
  ];
  let lastError;
  for(const [provider,url] of urls){
@@ -254,7 +254,7 @@ async function yahooQuote(symbol){
  }
  try{
   const saved=JSON.parse(localStorage.getItem("saudiMarketQuote:"+symbol)||"null");
-  if(saved&&Number.isFinite(saved.price))return {...saved,stale:true,source:(saved.source||"Yahoo Finance")+" · آخر قيمة محفوظة؛ تعذر الاتصال بالمصادر"};
+  if(saved&&Number.isFinite(saved.price))return {...saved,stale:true,source:(saved.source||"Yahoo Finance")+" · Last saved value; unable to reach sources"};
  }catch{}
  throw lastError||Error("quote unavailable "+symbol);
 }
@@ -275,77 +275,77 @@ async function loadCachedMarketData(){
    if(!q||!Number.isFinite(Number(q.price)))return;
    const time=q.timestamp?new Date(q.timestamp):stamp;
    const change=Number(q.change_percent)||0;
-   marketCache[key]={price:Number(q.price),change,history:Array.isArray(q.history)?q.history:[],time,source:q.source||"مصدر خارجي",currency:q.currency||""};
-   const when=time&&!Number.isNaN(time.getTime())?time.toLocaleString("ar-SA"):"وقت المصدر غير متاح";
-   paintMarketTile(key,fmtMarket(Number(q.price))+" "+unit,change,(change>0?"+":"")+fmtMarket(change)+"% · "+when+" · "+(q.source||"مصدر خارجي")+" · محفوظ بالمستودع");
+   marketCache[key]={price:Number(q.price),change,history:Array.isArray(q.history)?q.history:[],time,source:q.source||"External source",currency:q.currency||""};
+   const when=time&&!Number.isNaN(time.getTime())?time.toLocaleString("ar-SA"):"Source time unavailable";
+   paintMarketTile(key,fmtMarket(Number(q.price))+" "+unit,change,(change>0?"+":"")+fmtMarket(change)+"% · "+when+" · "+(q.source||"External source")+" · Saved in repository");
   };
-  showQuote("tasi",quotes.tasi,"تاسي","نقطة");
-  showQuote("oil",quotes.brent,"برنت","دولار/برميل");
-  for(const [key,label] of [["tasi","تاسي"],["oil","برنت"],["gold","الذهب"]]){
+  showQuote("tasi",quotes.tasi,"TASI","points");
+  showQuote("oil",quotes.brent,"Brent","USD/barrel");
+  for(const [key,label] of [["tasi","TASI"],["oil","Brent"],["gold","Gold"]]){
    const q=key==="gold"?quotes.gold:quotes[key==="oil"?"brent":key];
    const hasValue=key==="gold"?Number.isFinite(Number(q?.gram24_sar_estimate)):Number.isFinite(Number(q?.price));
-   if(!hasValue)paintMarketTile(key,"بانتظار أول تحديث محفوظ",0,"سيتم جلبه بعد إغلاق السوق وحفظه في المستودع.");
+   if(!hasValue)paintMarketTile(key,"Awaiting first saved update",0,"It will be retrieved after market close and saved to the repository.");
   }
   const gold=quotes.gold;
   if(gold&&Number.isFinite(Number(gold.gram24_sar_estimate))){
    const time=gold.timestamp?new Date(gold.timestamp):stamp;
-   marketCache.gold={price:Number(gold.gram24_sar_estimate),change:Number(gold.change_percent)||0,history:(gold.history||[]).map(x=>x*3.75/31.1034768),time,source:(gold.source||"Yahoo Finance")+" · تحويل تقديري",currency:"SAR/g"};
-   paintMarketTile("gold","24: "+fmtMarket(gold.gram24_sar_estimate)+" ر.س/جم",""+(Number(gold.change_percent)||0),"21: "+fmtMarket(gold.gram21_sar_estimate)+" ر.س/جم · "+(time&&!Number.isNaN(time.getTime())?time.toLocaleString("ar-SA"):"وقت المصدر غير متاح")+" · "+(gold.source||"Yahoo Finance")+" · محفوظ بالمستودع · تقديري قبل المصنعية");
+   marketCache.gold={price:Number(gold.gram24_sar_estimate),change:Number(gold.change_percent)||0,history:(gold.history||[]).map(x=>x*3.75/31.1034768),time,source:(gold.source||"Yahoo Finance")+" · Estimated conversion",currency:"SAR/g"};
+   paintMarketTile("gold","24: "+fmtMarket(gold.gram24_sar_estimate)+" SAR/g",""+(Number(gold.change_percent)||0),"21: "+fmtMarket(gold.gram21_sar_estimate)+" SAR/g · "+(time&&!Number.isNaN(time.getTime())?time.toLocaleString("ar-SA"):"Source time unavailable")+" · "+(gold.source||"Yahoo Finance")+" · Saved in repository · Estimate before workmanship fees");
   }
   const currencyTile=document.querySelector('[data-market="currency"]');
-  if(currencyTile){currencyTile.querySelector(".value").textContent="سعر مرجعي";currencyTile.querySelector("small").textContent="لا يوجد تحديث يومي محفوظ لهذه العملة حالياً.";}
+  if(currencyTile){currencyTile.querySelector(".value").textContent="Reference rate";currencyTile.querySelector("small").textContent="No saved daily update is currently available for this currency.";}
   for(const key of ["TASI","NOMU"]){
    const q=d.indices?.[key];if(!q)continue;
    const tile=document.querySelector('[data-market="'+(key==="TASI"?"tasi":"nomu")+'"]');
-   if(tile){tile.querySelector(".value").textContent=fmtMarket(q.index_value)+" نقطة";tile.querySelector("small").textContent=(q.index_change_percent>0?"+":"")+fmtMarket(q.index_change_percent)+"% · "+(q.timestamp?new Date(q.timestamp).toLocaleString("ar-SA"):"وقت المصدر غير متاح");}
+   if(tile){tile.querySelector(".value").textContent=fmtMarket(q.index_value)+" points";tile.querySelector("small").textContent=(q.index_change_percent>0?"+":"")+fmtMarket(q.index_change_percent)+"% · "+(q.timestamp?new Date(q.timestamp).toLocaleString("ar-SA"):"Source time unavailable");}
    marketCache[key==="TASI"?"tasi":"nomu"]={price:q.index_value,change:q.index_change_percent,time:q.timestamp?new Date(q.timestamp):stamp,source:"SAHMK · "+key,history:[]};
   }
   const gas=d.household_gas;
-  if(gas){marketCache.gas={price:gas.cylinder_11kg_sar,change:0,time:gas.effective_date?new Date(gas.effective_date):stamp,source:"غازكو · "+gas.source_url,history:[]};const tile=document.querySelector('[data-market="gas"]');if(tile){tile.querySelector(".value").textContent=fmtMarket(gas.cylinder_11kg_sar)+" ر.س / 11 كجم";tile.querySelector("small").textContent="5 كجم: "+fmtMarket(gas.cylinder_5kg_sar)+" ر.س · الخزان: "+fmtMarket(gas.central_tank_per_liter_sar)+" ر.س/لتر · شامل النقل والضريبة";}}
+  if(gas){marketCache.gas={price:gas.cylinder_11kg_sar,change:0,time:gas.effective_date?new Date(gas.effective_date):stamp,source:"Gasco · "+gas.source_url,history:[]};const tile=document.querySelector('[data-market="gas"]');if(tile){tile.querySelector(".value").textContent=fmtMarket(gas.cylinder_11kg_sar)+" SAR / 11 kg";tile.querySelector("small").textContent="5 kg: "+fmtMarket(gas.cylinder_5kg_sar)+" SAR · Tank: "+fmtMarket(gas.central_tank_per_liter_sar)+" SAR/litre · Includes delivery and VAT";}}
   const root=document.getElementById("marketEquities");
   if(root){
    root.replaceChildren();
    for(const market of ["TASI","NOMU"]){
     const section=d.markets?.[market]||{};
-    const title=document.createElement("h3");title.textContent=market==="TASI"?"أسهم السوق الرئيسية — تاسي":"أسهم السوق الموازية — نمو";root.appendChild(title);
+    const title=document.createElement("h3");title.textContent=market==="TASI"?"Main Market Stocks — TASI":"Parallel Market Stocks — NOMU";root.appendChild(title);
     const directory=d.companies?.[market]||[];
     const bySymbol=new Map();
-    for(const [category,label] of [["leaders_value","الأعلى قيمة تداول"],["leaders_volume","الأعلى حجماً"],["gainers","الأكثر ارتفاعاً"],["losers","الأكثر انخفاضاً"]]){
+    for(const [category,label] of [["leaders_value","Highest Traded Value"],["leaders_volume","Highest Volume"],["gainers","Top Gainers"],["losers","Top Losers"]]){
      for(const stock of section[category]||[]){
       const code=String(stock.symbol||"");if(!code)continue;
       if(!bySymbol.has(code))bySymbol.set(code,{...stock,categories:[]});
       bySymbol.get(code).categories.push(label);
      }
     }
-    for(const company of directory){const code=String(company.symbol||"");if(code&&!bySymbol.has(code))bySymbol.set(code,{symbol:code,name:company.name_ar||company.name_en||"",price:null,change_percent:null,volume:null,categories:["بقية الأسهم النشطة"]});}
+    for(const company of directory){const code=String(company.symbol||"");if(code&&!bySymbol.has(code))bySymbol.set(code,{symbol:code,name:company.name_ar||company.name_en||"",price:null,change_percent:null,volume:null,categories:["Other Active Stocks"]});}
     const rows=[...bySymbol.values()];
-    const count=document.createElement("p");count.className="market-note";count.textContent="إجمالي الأسهم النشطة: "+directory.length+" · تُعرض القياديات وقوائم النشاط أولاً، ثم بقية الأسهم. السعر التفصيلي متاح حالياً للأسهم الظاهرة ضمن قوائم السوق من SAHMK؛ بقية الرموز دليل شركات فقط ضمن الباقة المجانية.";root.appendChild(count);
-    if(!rows.length){const empty=document.createElement("p");empty.className="market-note";empty.textContent="لا توجد بيانات أسعار محفوظة لهذا السوق بعد.";root.appendChild(empty);continue;}
+    const count=document.createElement("p");count.className="market-note";count.textContent="Total active stocks: "+directory.length+" · Leading stocks and active lists are shown first, followed by other stocks. Detailed prices are currently available for stocks listed in SAHMK market lists; other symbols are company-directory entries only under the free tier.";root.appendChild(count);
+    if(!rows.length){const empty=document.createElement("p");empty.className="market-note";empty.textContent="No saved price data is available for this market yet.";root.appendChild(empty);continue;}
     const table=document.createElement("div");table.className="market-stock-table";
     const head=document.createElement("div");head.className="market-stock-row market-stock-head";
-    ["الرمز والشركة","السعر","التغير","حجم التداول","التصنيف"].forEach(t=>{const x=document.createElement("span");x.textContent=t;head.appendChild(x)});table.appendChild(head);
+    ["Symbol & Company","Price","Change","Trading Volume","Category"].forEach(t=>{const x=document.createElement("span");x.textContent=t;head.appendChild(x)});table.appendChild(head);
     rows.sort((a,b)=>(Number(b.value)||Number(b.volume)||0)-(Number(a.value)||Number(a.volume)||0));
     for(const stock of rows){
      const row=document.createElement("div");row.className="market-stock-row";
-     const vals=[String(stock.symbol)+" · "+(stock.name||""),stock.price==null?"—":fmtMarket(stock.price)+" ر.س",stock.change_percent==null?"—":(stock.change_percent>0?"+":"")+fmtMarket(stock.change_percent)+"%",stock.volume==null?"—":fmtMarket(stock.volume),[...new Set(stock.categories)].join("، ")];
+     const vals=[String(stock.symbol)+" · "+(stock.name||""),stock.price==null?"—":fmtMarket(stock.price)+" SAR",stock.change_percent==null?"—":(stock.change_percent>0?"+":"")+fmtMarket(stock.change_percent)+"%",stock.volume==null?"—":fmtMarket(stock.volume),[...new Set(stock.categories)].join("، ")];
      vals.forEach((v,i)=>{const x=document.createElement("span");x.textContent=v;if(i===2)x.className=(Number(stock.change_percent)>0?"market-up":Number(stock.change_percent)<0?"market-down":"");row.appendChild(x)});table.appendChild(row);
     }
     root.appendChild(table);
    }
   }
-  $("marketUpdated").textContent=stamp?"آخر تحديث السوق: "+stamp.toLocaleString("ar-SA")+" · المصدر: SAHMK · نهاية التداول":"لم يتم تحديث بيانات السوق بعد.";
+  $("marketUpdated").textContent=stamp?"Market last updated: "+stamp.toLocaleString("ar-SA")+" · Source: SAHMK · Market close":"Market data has not been updated yet.";
  }catch(e){
   console.warn("Cached market data unavailable",e);
-  for(const key of ["tasi","oil","gold"])paintMarketTile(key,"تعذر قراءة ملف الأسعار",0,"تحقق من اتصال الموقع؛ لن يتم جلب الأسعار مباشرة من المتصفح.");
-  $("marketUpdated").textContent="تعذر قراءة ملف data/market.json من المستودع.";
+  for(const key of ["tasi","oil","gold"])paintMarketTile(key,"Unable to read price file",0,"Check the site connection; prices will not be fetched directly by the browser.");
+  $("marketUpdated").textContent="Unable to read data/market.json from the repository.";
  }
 }
 
 function getFavs(){try{return JSON.parse(localStorage.getItem("saudiMarketFavorites")||"[]").filter(x=>/^\d{4,5}$/.test(x))}catch{return []}}
 function saveFavs(a){localStorage.setItem("saudiMarketFavorites",JSON.stringify([...new Set(a)].slice(0,20)));renderFavs()}
-async function renderFavs(){const box=$("stockList"),a=getFavs();if(!a.length){box.innerHTML='<span class="market-note">No stocks have been added yet.</span>';return}box.innerHTML="";for(const code of a){const el=document.createElement("div");el.className="market-stock";el.textContent=code+".SR · جارٍ التحميل";const del=document.createElement("button");del.textContent="×";del.title="حذف من المفضلة";del.onclick=()=>saveFavs(getFavs().filter(x=>x!==code));el.appendChild(del);box.appendChild(el);try{const q=await yahooQuote(code+".SR");el.firstChild.textContent=code+".SR · "+fmtMarket(q.price)+" "+q.currency+" · "+(q.change>0?"+":"")+fmtMarket(q.change)+"%";el.title="المصدر: "+q.source+" · "+q.time.toLocaleString("ar-SA")}catch{el.firstChild.textContent=code+".SR · السعر غير متاح من المصدر"}}}
-async function addStock(){const raw=$("stockSearch").value.trim();const m=raw.match(/\d{4,5}/);if(!m){$("stockResults").textContent="أدخل رمز تداول من 4 أو 5 أرقام.";return}const code=m[0];$("stockResults").textContent="جارٍ التحقق من الرمز…";try{const q=await yahooQuote(code+".SR");saveFavs([...getFavs(),code]);$("stockResults").textContent=code+".SR · "+fmtMarket(q.price)+" · تمت الإضافة";$("stockSearch").value=""}catch{$("stockResults").textContent="لم نتمكن من التحقق من السهم حالياً. لن نضيف رمزاً غير متحقق."}}
-function showMarketDetails(key){const q=marketCache[key];$("marketModalTitle").textContent=marketNames[key]||"تفاصيل السعر";$("marketModalMeta").textContent=q?.price!=null?"آخر سعر: "+fmtMarket(q.price)+" · "+(q.change>0?"+":"")+fmtMarket(q.change)+"% · "+(q.time?.toLocaleString("ar-SA")||"وقت غير متاح"):"لا تتوفر قيمة موثقة حالياً لهذا العنصر."; $("marketModalSource").textContent="المصدر: "+(q?.source||marketSources[key]||"غير محدد")+". الأسعار الرسمية الثابتة لا تُعرض حتى يتوفر جدول موثق وتاريخ سريان.";const c=$("marketChart"),ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);const vals=q?.history||[];if(vals.length>1){const lo=Math.min(...vals),hi=Math.max(...vals),span=hi-lo||1;ctx.beginPath();vals.forEach((v,i)=>{const x=20+i*(c.width-40)/(vals.length-1),y=c.height-20-(v-lo)/span*(c.height-40);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.strokeStyle="#a5b77a";ctx.lineWidth=3;ctx.stroke()}else{ctx.fillStyle="#a6b09b";ctx.font="14px sans-serif";ctx.fillText("لا تتوفر بيانات تاريخية للرسم حالياً",120,95)}$("marketModal").classList.add("open")}
+async function renderFavs(){const box=$("stockList"),a=getFavs();if(!a.length){box.innerHTML='<span class="market-note">No stocks have been added yet.</span>';return}box.innerHTML="";for(const code of a){const el=document.createElement("div");el.className="market-stock";el.textContent=code+".SR · Loading";const del=document.createElement("button");del.textContent="×";del.title="Remove from watchlist";del.onclick=()=>saveFavs(getFavs().filter(x=>x!==code));el.appendChild(del);box.appendChild(el);try{const q=await yahooQuote(code+".SR");el.firstChild.textContent=code+".SR · "+fmtMarket(q.price)+" "+q.currency+" · "+(q.change>0?"+":"")+fmtMarket(q.change)+"%";el.title="Source: "+q.source+" · "+q.time.toLocaleString("ar-SA")}catch{el.firstChild.textContent=code+".SR · Price unavailable from source"}}}
+async function addStock(){const raw=$("stockSearch").value.trim();const m=raw.match(/\d{4,5}/);if(!m){$("stockResults").textContent="Enter a 4- or 5-digit Tadawul symbol.";return}const code=m[0];$("stockResults").textContent="Verifying symbol…";try{const q=await yahooQuote(code+".SR");saveFavs([...getFavs(),code]);$("stockResults").textContent=code+".SR · "+fmtMarket(q.price)+" · Added";$("stockSearch").value=""}catch{$("stockResults").textContent="We could not verify this stock. An unverified symbol will not be added."}}
+function showMarketDetails(key){const q=marketCache[key];$("marketModalTitle").textContent=marketNames[key]||"Price Details";$("marketModalMeta").textContent=q?.price!=null?"Last price: "+fmtMarket(q.price)+" · "+(q.change>0?"+":"")+fmtMarket(q.change)+"% · "+(q.time?.toLocaleString("ar-SA")||"Time unavailable"):"No verified value is currently available for this item."; $("marketModalSource").textContent="Source: "+(q?.source||marketSources[key]||"Unspecified")+". الأسعار الرسمية الثابتة لا تُعرض حتى يتوفر جدول موثق وتاريخ سريان.";const c=$("marketChart"),ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);const vals=q?.history||[];if(vals.length>1){const lo=Math.min(...vals),hi=Math.max(...vals),span=hi-lo||1;ctx.beginPath();vals.forEach((v,i)=>{const x=20+i*(c.width-40)/(vals.length-1),y=c.height-20-(v-lo)/span*(c.height-40);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.strokeStyle="#a5b77a";ctx.lineWidth=3;ctx.stroke()}else{ctx.fillStyle="#a6b09b";ctx.font="14px sans-serif";ctx.fillText("No historical data is currently available for the chart",120,95)}$("marketModal").classList.add("open")}
 $("marketRefresh").addEventListener("click",()=>loadMarket());$("stockAdd").addEventListener("click",addStock);$("stockSearch").addEventListener("keydown",e=>{if(e.key==="Enter")addStock()});$("marketClose").addEventListener("click",()=>$("marketModal").classList.remove("open"));$("marketModal").addEventListener("click",e=>{if(e.target===$("marketModal"))$("marketModal").classList.remove("open")});$("marketStrip").addEventListener("click",e=>{const tile=e.target.closest("[data-market]");if(tile)showMarketDetails(tile.dataset.market)});renderFavs();loadCachedMarketData();
 </script>
 </body></html>
