@@ -54,6 +54,22 @@ CITY_NEWS_QUERIES = {
  "AlKhobar":'"الخبر" OR "الظهران" السعودية أخبار',
 }
 UA = "SaudiAI-NewsBot/1.0 (+https://abud3d.github.io/news/)"
+
+# مصادر تحريرية محددة؛ RSS المباشر أولاً، والبحث المقيد بنطاق الناشر عند غياب موجز موثق.
+SOURCE_REGISTRY = {
+ "واس": {"domain":"spa.gov.sa","feed":None},
+ "سبق": {"domain":"sabq.org","feed":None},
+ "عكاظ": {"domain":"okaz.com.sa","feed":"https://www.okaz.com.sa/rss"},
+ "الجزيرة": {"domain":"al-jazirah.com","feed":"https://www.al-jazirah.com/rss/ln.xml"},
+ "الوطن": {"domain":"alwatan.com.sa","feed":"https://www.alwatan.com.sa/rssFeed/1"},
+ "المرصد": {"domain":"al-marsd.com","feed":"https://al-marsd.com/public/rssFeed/1"},
+ "صحيفة الرياض": {"domain":"alriyadh.com","feed":None},
+ "العربية": {"domain":"alarabiya.net","feed":None},
+ "الجزيرة نت": {"domain":"aljazeera.net","feed":"https://www.aljazeera.net/rss"},
+ "عاجل": {"domain":"ajel.sa","feed":"https://ajel.sa/rss.xml"},
+}
+SOURCE_DOMAINS = [x["domain"] for x in SOURCE_REGISTRY.values()]
+
 def get(url, timeout=12):
  req=urllib.request.Request(url, headers={"User-Agent":UA,"Accept":"application/rss+xml, application/xml, application/json, text/xml"})
  with urllib.request.urlopen(req, timeout=timeout) as r:
@@ -96,12 +112,20 @@ def enrich_excerpts(rows):
 def parse_rss(url, source_override=None):
  root=ET.fromstring(get(url))
  rows=[]
- for item in root.findall(".//item"):
-  title=clean(item.findtext("title"))
-  link=(item.findtext("link") or "").strip()
+ nodes=root.findall(".//item")
+ if not nodes: nodes=root.findall(".//{http://www.w3.org/2005/Atom}entry")
+ for item in nodes:
+  def val(tag):
+   x=item.find(tag)
+   return (x.text or "").strip() if x is not None else ""
+  title=clean(val("title") or val("{http://www.w3.org/2005/Atom}title"))
+  link=val("link")
+  if not link:
+   atom_link=item.find("{http://www.w3.org/2005/Atom}link")
+   if atom_link is not None: link=atom_link.attrib.get("href","")
   if not title or not link: continue
-  pub=item.findtext("pubDate") or item.findtext("{http://www.w3.org/2005/Atom}published") or ""
-  desc=clean(item.findtext("description"))
+  pub=val("pubDate") or val("published") or val("updated") or val("{http://www.w3.org/2005/Atom}published") or val("{http://www.w3.org/2005/Atom}updated")
+  desc=clean(val("description") or val("{http://www.w3.org/2005/Atom}summary") or val("{http://www.w3.org/2005/Atom}content"))
   src=item.find("source")
   source=source_override or (clean(src.text) if src is not None and src.text else "")
   rows.append({"title":title,"url":link,"source":source or "الناشر الأصلي","date":pub,"description":desc[:350]})
@@ -111,10 +135,36 @@ def fetch_google(q):
  url="https://news.google.com/rss/search?"+urllib.parse.urlencode({"q":q,"hl":"ar","gl":"SA","ceid":"SA:ar"})
  rows=parse_rss(url)
  for x in rows:
-  if not x["source"]:
+  if not x["source"] or x["source"]=="الناشر الأصلي":
    parts=x["title"].rsplit(" - ",1)
    x["source"]=parts[-1] if len(parts)>1 else "الناشر الأصلي"
  return rows
+
+def fetch_source_registry():
+ results={}; statuses={}
+ def one(name,cfg):
+  if cfg.get("feed"):
+   rows=parse_rss(cfg["feed"],name)
+   return name,rows,{"status":"ok" if rows else "ok_empty","method":"RSS مباشر","items":len(rows),"checked_at":datetime.now(timezone.utc).isoformat()}
+  rows=fetch_google("site:"+cfg["domain"]+" أخبار السعودية")
+  rows=[x for x in rows if urllib.parse.urlparse(x.get("url","")).netloc.lower().endswith(cfg["domain"])]
+  for x in rows: x["source"]=name
+  return name,rows,{"status":"ok" if rows else "ok_empty","method":"بحث مقيد بنطاق الناشر","items":len(rows),"checked_at":datetime.now(timezone.utc).isoformat()}
+ with ThreadPoolExecutor(max_workers=8) as pool:
+  futures={pool.submit(one,n,c):n for n,c in SOURCE_REGISTRY.items()}
+  for f in as_completed(futures):
+   name=futures[f]
+   try:
+    n,rows,status=f.result();results[n]=rows;statuses[n]=status
+   except Exception as e:
+    old=(previous.get("source_cache") or {}).get(name,[])
+    results[name]=old
+    statuses[name]={"status":"stale" if old else "unavailable","method":"RSS مباشر" if SOURCE_REGISTRY[name].get("feed") else "بحث مقيد بنطاق الناشر","items":len(old),"checked_at":datetime.now(timezone.utc).isoformat(),"error":str(e)[:180]}
+ return results,statuses
+
+def editorial_query(q):
+ domains=" OR ".join("site:"+d for d in SOURCE_DOMAINS)
+ return fetch_google("("+q+") ("+domains+")")
 
 def fetch_hacker():
  j=json.loads(get("https://hn.algolia.com/api/v1/search?tags=front_page"))
@@ -147,8 +197,12 @@ def merge(old, new, limit=50):
 try:
  with open(OUT,encoding="utf-8") as f: previous=json.load(f)
 except Exception: previous={"categories":{},"weather":{}}
-result={"schema":1,"updated_at":datetime.now(timezone.utc).isoformat(),"categories":{},"weather":{},"city_news":{},"weather_news":{}}
+result={"schema":2,"updated_at":datetime.now(timezone.utc).isoformat(),"categories":{},"weather":{},"city_news":{},"weather_news":{},"source_status":{},"source_cache":{}}
 errors=[]
+source_cache,source_status=fetch_source_registry()
+result["source_status"]=source_status
+result["source_cache"]={k:merge((previous.get("source_cache") or {}).get(k,[]),v,limit=30) for k,v in source_cache.items()}
+all_editorial=[x for rows in source_cache.values() for x in rows]
 def category(key, fn):
  old=previous.get("categories",{}).get(key,{})
  try:
@@ -160,9 +214,21 @@ def category(key, fn):
   result["categories"][key]={"items":old.get("items",[]),"updated_at":old.get("updated_at",""),"status":"stale" if old.get("items") else "unavailable","error":str(e)[:180]}
 
 for key,q in QUERIES.items():
- category(key, fetch_hacker if key=="HACKER_NEWS" else (lambda q=q: fetch_google(q)))
+ if key not in ("SPORT_KSA","SPORT_AFC"):
+  category(key, fetch_hacker if key=="HACKER_NEWS" else (lambda q=q,k=key: merge((all_editorial if k=="Saudi Arabia news" else []),editorial_query(q),limit=50)))
 category("__CYBER__",lambda:parse_rss("https://thehackernews.com/feeds/posts/default?alt=rss","The Hacker News"))
 category("HACKER_NEWS",fetch_hacker)
+# الرياضة: بحث مقيد بالمصادر الرياضية والأندية، مع موجزات الأقسام الرياضية المتاحة.
+def fetch_sports(query):
+ domains=["spl.com.sa","alhilal.com","alnassr.sa","alahli.com","ittihadclub.sa","al-jazirah.com","alwatan.com.sa","alriyadh.com","al-marsd.com","sabq.org","okaz.com.sa"]
+ rows=fetch_google("("+query+") ("+" OR ".join("site:"+d for d in domains)+")")
+ try: rows+=parse_rss("https://www.alwatan.com.sa/rssFeed/3","الوطن")
+ except Exception: pass
+ try: rows+=parse_rss("https://www.al-jazirah.com/rss/sp.xml","الجزيرة")
+ except Exception: pass
+ return merge([],rows,limit=50)
+category("SPORT_KSA",lambda:fetch_sports("دوري روشن السعودي الهلال النصر الاتحاد الأهلي الشباب مباريات اليوم"))
+category("SPORT_AFC",lambda:fetch_sports("دوري أبطال آسيا للنخبة الهلال الأهلي الاتحاد مباريات"))
 # Refresh weather, city headlines and city-weather headlines concurrently.
 def refresh_weather(code, city):
  old=previous.get("weather",{}).get(code)
