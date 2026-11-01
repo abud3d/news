@@ -394,7 +394,7 @@ def classify_topics(item):
 # نحافظ على الأخبار غير المصنفة بوضوح، ولا نمس أقسام الرياضة والأمن السيبراني.
 editorial_keys=list(TOPIC_ALIASES.keys())
 editorial_pool=[]
-for source_key in editorial_keys:
+for source_key in ["Saudi Arabia news"]+editorial_keys:
  editorial_pool.extend(result.get("categories",{}).get(source_key,{}).get("items",[]))
 editorial_pool=merge([],editorial_pool,limit=500)
 for target_key in editorial_keys:
