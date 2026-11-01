@@ -194,6 +194,38 @@ def editorial_query(q):
  domains=" OR ".join("site:"+d for d in SOURCE_DOMAINS)
  return fetch_google("("+q+") ("+domains+")")
 
+TECH_SOURCES = {
+ "The Verge":"https://www.theverge.com/rss/index.xml",
+ "TechCrunch":"https://techcrunch.com/feed/",
+ "Android Authority":"https://www.androidauthority.com/feed/",
+ "GSMArena":"https://www.gsmarena.com/rss-news-reviews.php3",
+ "ScienceDaily":"https://www.sciencedaily.com/rss/computers_math/technology.xml",
+}
+TECH_DOMAINS=["theverge.com","techcrunch.com","androidauthority.com","gsmarena.com","sciencedaily.com","arstechnica.com","wired.com","engadget.com","cnet.com","9to5google.com"]
+
+def fetch_technology():
+ rows=[]
+ # موجزات متخصصة مباشرة لتغطية العلوم والتقنية والهواتف.
+ for name,url in TECH_SOURCES.items():
+  try:
+   rows.extend(parse_rss(url,name))
+  except Exception as e:
+   print("TECH_SOURCE:",name,"unavailable:",str(e)[:120])
+ # بحث عربي وإنجليزي محصور بمواقع تقنية متخصصة.
+ domains=" OR ".join("site:"+d for d in TECH_DOMAINS)
+ queries=[
+  '(هواتف OR جوالات OR سامسونج OR آيفون OR Apple OR Samsung OR smartphone) ('+domains+')',
+  '(علوم OR اكتشاف علمي OR تكنولوجيا OR تقنية OR artificial intelligence OR science OR technology) ('+domains+')'
+ ]
+ for q in queries:
+  try: rows.extend(fetch_google(q))
+  except Exception as e: print("TECH_SEARCH: unavailable:",str(e)[:120])
+ for item in rows:
+  if not item.get("source") or item["source"]=="الناشر الأصلي":
+   host=urllib.parse.urlparse(item.get("url","")).netloc.lower().removeprefix("www.")
+   item["source"]=next((d for d in TECH_DOMAINS if host.endswith(d)),host or "مصدر تقني")
+ return merge([],rows,limit=100)
+
 def fetch_hacker():
  j=json.loads(get("https://hn.algolia.com/api/v1/search?tags=front_page"))
  return [{"title":x.get("title",""),"url":x.get("url") or "https://news.ycombinator.com/item?id="+str(x.get("objectID","")),
@@ -247,7 +279,10 @@ def category(key, fn):
 
 for key,q in QUERIES.items():
  if key not in ("SPORT_KSA","SPORT_AFC"):
-  category(key, fetch_hacker if key=="HACKER_NEWS" else (lambda q=q,k=key: merge((all_editorial if k=="Saudi Arabia news" else []),editorial_query(q),limit=50)))
+  if key=="Saudi Arabia technology":
+   category(key,fetch_technology)
+  else:
+   category(key, fetch_hacker if key=="HACKER_NEWS" else (lambda q=q,k=key: merge((all_editorial if k=="Saudi Arabia news" else []),editorial_query(q),limit=50)))
 category("__CYBER__",lambda:parse_rss("https://thehackernews.com/feeds/posts/default?alt=rss","The Hacker News"))
 category("HACKER_NEWS",fetch_hacker)
 # الرياضة: بحث مقيد بالمصادر الرياضية والأندية، مع موجزات الأقسام الرياضية المتاحة.
