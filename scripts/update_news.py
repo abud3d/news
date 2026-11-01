@@ -254,6 +254,9 @@ def refresh_city_feed(kind, code, query):
  old=previous.get(kind,{}).get(code,{})
  try:
   fresh=editorial_query(query)
+  if code=="Riyadh":
+   # استبعاد صحيفة الرياض كمصدر فقط، دون استبعاد كلمة الرياض من عناوين الأخبار.
+   fresh=[item for item in fresh if "صحيفة الرياض" not in str(item.get("source",""))]
   data={"items":merge(old.get("items",[]),fresh),"updated_at":result["updated_at"],"status":"ok" if fresh else "ok_empty","new_items":len(fresh)}
   return (kind,code,data,None)
  except Exception as e:
