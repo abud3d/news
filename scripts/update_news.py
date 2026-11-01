@@ -201,8 +201,9 @@ def fetch_source_registry():
  return results,statuses
 
 def editorial_query(q):
- domains=" OR ".join("site:"+d for d in SOURCE_DOMAINS)
- return fetch_google("("+q+") ("+domains+")")
+ # Google News is the primary discovery engine. Keep the original broad query:
+ # publisher/domain restrictions can hide valid stories and sharply reduce results.
+ return fetch_google(q)
 
 TECH_SOURCES = {
  "The Verge":"https://www.theverge.com/rss/index.xml",
@@ -225,11 +226,10 @@ def fetch_technology():
    print("TECH_SOURCE:",name,"ok items:",len(feed_rows))
   except Exception as e:
    print("TECH_SOURCE:",name,"unavailable:",str(e)[:120])
- # بحث عربي وإنجليزي محصور بمواقع تقنية متخصصة.
- domains=" OR ".join("site:"+d for d in TECH_DOMAINS)
+ # Google News search remains broad; do not restrict results to a fixed domain list.
  queries=[
-  '(هواتف OR جوالات OR سامسونج OR آيفون OR Apple OR Samsung OR smartphone) ('+domains+')',
-  '(علوم OR اكتشاف علمي OR تكنولوجيا OR تقنية OR artificial intelligence OR science OR technology) ('+domains+')'
+  'هواتف جوالات سامسونج آيفون Apple Samsung smartphone',
+  'علوم اكتشاف علمي تكنولوجيا تقنية artificial intelligence science technology'
  ]
  for q in queries:
   try: rows.extend(fetch_google(q))
@@ -310,8 +310,8 @@ category("__CYBER__",lambda:parse_rss("https://thehackernews.com/feeds/posts/def
 category("HACKER_NEWS",fetch_hacker)
 # الرياضة: بحث مقيد بالمصادر الرياضية والأندية، مع موجزات الأقسام الرياضية المتاحة.
 def fetch_sports(query):
- domains=["spl.com.sa","alhilal.com","alnassr.sa","alahli.com","ittihadclub.sa","al-jazirah.com","alwatan.com.sa","alriyadh.com","al-marsd.com","sabq.org","okaz.com.sa"]
- rows=fetch_google("("+query+") ("+" OR ".join("site:"+d for d in domains)+")")
+ # Use broad Google News search, matching the original working collection logic.
+ rows=fetch_google(query)
  try: rows+=parse_rss("https://www.alwatan.com.sa/rssFeed/3","الوطن")
  except Exception: pass
  try: rows+=parse_rss("https://www.al-jazirah.com/rss/sp.xml","الجزيرة")
