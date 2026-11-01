@@ -86,6 +86,16 @@ SOURCE_REGISTRY = {
  "العربية": {"domain":"alarabiya.net","feed":None},
  "الجزيرة نت": {"domain":"aljazeera.net","feed":"https://www.aljazeera.net/rss"},
  "عاجل": {"domain":"ajel.sa","feed":"https://ajel.sa/rss.xml"},
+ "الشرق الأوسط": {"domain":"aawsat.com","feed":"https://aawsat.com/feed/news"},
+ "CNN": {"domain":"arabic.cnn.com","feed":"https://arabic.cnn.com/api/v1/rss/rss.xml"},
+ "جريدة المدينة": {"domain":"al-madina.com","feed":"https://www.al-madina.com/rssFeed/193"},
+ "BBC": {"domain":"bbcarabic.com","feed":"https://feeds.bbci.co.uk/arabic/rss.xml"},
+ "الحدث": {"domain":"alhadath.net","feed":None},
+ "GOAL": {"domain":"goal.com","feed":None},
+ "Investing": {"domain":"investing.com","feed":None},
+ "أرقام": {"domain":"argaam.com","feed":None},
+ "عالم التقنية": {"domain":"tech-wd.com","feed":None},
+ "أخبار 24": {"domain":"akhbaar24.com","feed":None},
 }
 SOURCE_DOMAINS = [x["domain"] for x in SOURCE_REGISTRY.values()]
 
