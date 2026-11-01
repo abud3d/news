@@ -1,0 +1,36 @@
+name: Update Saudi market data after trading close
+on:
+  schedule:
+    # 15:40 Riyadh time, Sunday–Thursday (12:40 UTC).
+    - cron: "40 12 * * 0-4"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: update-market-data
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Update market snapshot (indices first, TASI leaders, then Nomu)
+        env:
+          SAHMK_API_KEY: ${{ secrets.SAHMK_API_KEY }}
+        run: python scripts/update_market.py
+      - name: Commit only successful snapshot changes
+        run: |
+          if git diff --quiet -- data/market.json; then
+            echo "No market data changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/market.json
+          git commit -m "[skip ci] chore: refresh Saudi market snapshot"
+          git pull --rebase origin main
+          git push
