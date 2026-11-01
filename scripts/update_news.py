@@ -206,8 +206,6 @@ def editorial_query(q):
  return fetch_google(q)
 
 TECH_SOURCES = {
- "The Verge":"https://www.theverge.com/rss/index.xml",
- "TechCrunch":"https://techcrunch.com/feed/",
  "Android Authority":"https://www.androidauthority.com/feed/",
  "GSMArena":"https://www.gsmarena.com/rss-news-reviews.php3",
  "NASA":"https://www.nasa.gov/feed/",
