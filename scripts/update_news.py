@@ -188,7 +188,7 @@ def fetch_source_registry():
   # بحث Google News مقيد بـ site:domain؛ روابط RSS قد تكون روابط تحويل news.google.com وليست نطاق الناشر مباشرة.
   for x in rows: x["source"]=name
   return name,rows,{"status":"ok" if rows else "ok_empty","method":method,"items":len(rows),"checked_at":datetime.now(timezone.utc).isoformat()}
- with ThreadPoolExecutor(max_workers=8) as pool:
+ with ThreadPoolExecutor(max_workers=4) as pool:
   futures={pool.submit(one,n,c):n for n,c in SOURCE_REGISTRY.items()}
   for f in as_completed(futures):
    name=futures[f]
@@ -357,7 +357,7 @@ def run_task(task):
  if kind=="weather": return refresh_weather(code,arg)
  return refresh_city_feed(kind,code,arg)
 
-with ThreadPoolExecutor(max_workers=10) as pool:
+with ThreadPoolExecutor(max_workers=5) as pool:
  futures=[pool.submit(run_task,task) for task in tasks]
  for future in as_completed(futures):
   kind,code,data,error=future.result()
