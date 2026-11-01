@@ -272,8 +272,9 @@ async function loadCachedMarketData(){
       bySymbol.get(code).categories.push(label);
      }
     }
+    for(const company of directory){const code=String(company.symbol||"");if(code&&!bySymbol.has(code))bySymbol.set(code,{symbol:code,name:company.name_ar||company.name_en||"",price:null,change_percent:null,volume:null,categories:["بقية الأسهم النشطة"]});}
     const rows=[...bySymbol.values()];
-    const count=document.createElement("p");count.className="market-note";count.textContent="الشركات النشطة المصنفة كأسهم: "+directory.length+" · أسعار وقوائم أبرز التداول من SAHMK.";root.appendChild(count);
+    const count=document.createElement("p");count.className="market-note";count.textContent="إجمالي الأسهم النشطة: "+directory.length+" · تُعرض القياديات وقوائم النشاط أولاً، ثم بقية الأسهم. السعر التفصيلي متاح حالياً للأسهم الظاهرة ضمن قوائم السوق من SAHMK؛ بقية الرموز دليل شركات فقط ضمن الباقة المجانية.";root.appendChild(count);
     if(!rows.length){const empty=document.createElement("p");empty.className="market-note";empty.textContent="لا توجد بيانات أسعار محفوظة لهذا السوق بعد.";root.appendChild(empty);continue;}
     const table=document.createElement("div");table.className="market-stock-table";
     const head=document.createElement("div");head.className="market-stock-row market-stock-head";
