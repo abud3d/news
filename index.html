@@ -72,12 +72,12 @@ footer{border-top:1px solid var(--line);margin-top:35px;padding:22px 0 30px;colo
 <ul id="offersFeed" class="offers-posts"><li class="empty">جارٍ تحميل المنشورات…</li></ul>
 <div class="meta" style="margin-top:10px">المنشورات من SnapFlyer، وروابط الشراء والعروض الرسمية تفتح مواقع المتاجر نفسها.</div>
 </section>
-<div class="toolbar"><h1 id="feedTitle">أحدث الأخبار</h1><div class="update-info"><span id="updated">جارٍ تحديث الموجز…</span><a class="manual-update" href="https://github.com/abud3d/news/actions/workflows/update-news.yml" target="_blank" rel="noopener" title="افتح صفحة تشغيل تحديث الأخبار">تحديث</a></div></div>
+<div class="toolbar"><h1 id="feedTitle">أحدث الأخبار</h1><div class="update-info"><span id="updated">جارٍ تحديث الموجز…</span><a class="manual-update" href="https://github.com/abud3d/news/actions/workflows/update-news.yml" target="_blank" rel="noopener" title="افتح GitHub Actions ثم اختر Run workflow لتشغيل جلب الأخبار يدوياً؛ يتطلب تسجيل الدخول">تشغيل تحديث يدوي</a></div></div>
 <div class="layout"><section><div class="feed" id="feed"><div class="empty">جارٍ تحميل الأخبار من المصادر…</div></div><button class="more-btn" id="loadMore" type="button" style="display:none">عرض المزيد من الأخبار</button></section>
 <aside class="side">
 <div class="card"><h3>عن ذكاء السعودية</h3><p>موجز عربي سريع يجمع أبرز الأخبار حسب الموضوع والمنطقة، مع رابط الخبر ومصدره الأصلي. ذكاء السعودية مشروع مستقل قيد التطوير.</p></div>
 <div class="card"><h3>مصادر ومتابعة</h3><div class="quicklinks"><a href="https://www.spa.gov.sa/" target="_blank" rel="noopener">واس</a><a href="https://sabq.org/" target="_blank" rel="noopener">سبق</a><a href="https://www.okaz.com.sa/" target="_blank" rel="noopener">عكاظ</a><a href="https://www.al-jazirah.com/" target="_blank" rel="noopener">الجزيرة</a><a href="https://www.alwatan.com.sa/" target="_blank" rel="noopener">الوطن</a><a href="https://www.alriyadh.com/" target="_blank" rel="noopener">الرياض</a><a href="https://al-marsd.com/" target="_blank" rel="noopener">المرصد</a><a href="https://www.alarabiya.net/" target="_blank" rel="noopener">العربية</a><a href="https://www.aljazeera.net/" target="_blank" rel="noopener">الجزيرة نت</a><a href="https://www.spl.com.sa/ar" target="_blank" rel="noopener">دوري روشن الرسمي</a><a href="https://www.saudiexchange.sa/" target="_blank" rel="noopener">تداول السعودية</a><a href="https://news.ycombinator.com/" target="_blank" rel="noopener">Hacker News</a></div></div>
-<div class="card"><h3>حالة التحديث</h3><div class="status"><span class="dot"></span><span id="feedStatus">تحديث الأخبار تلقائياً كل 30 دقيقة أثناء فتح الصفحة</span></div><p style="margin-top:8px">الأخبار المعروضة روابط من مصادر خارجية، وقد يختلف توفرها حسب المصدر.</p></div>
+<div class="card"><h3>حالة التحديث</h3><div class="status"><span class="dot"></span><span id="feedStatus">تحديث الأخبار تلقائياً كل ساعة أثناء فتح الصفحة</span></div><p style="margin-top:8px">الأخبار المعروضة روابط من مصادر خارجية، وقد يختلف توفرها حسب المصدر.</p></div>
 </aside></div>
 </main>
 <footer><div class="wrap">ذكاء السعودية Saudi AI · النسخة التقريبية 1.1.0 · Talal @ 2026 · <a href="https://abud3d.github.io/welcome/" target="_blank" rel="noopener">نبذتي الرقمية على GitHub</a> · تُعرض الأخبار باسم الناشر الأصلي مع رابط الخبر. تُستخدم خدمة RSS لجلب العناوين فقط. مواقيت الصلاة من خدمة AlAdhan.</div></footer>
@@ -147,7 +147,7 @@ async function loadNews(){
   render();
   setUpdateLabel("updated",cache.updated_at,"آخر تحديث للمستودع ");
   const stale=cache.categories?.[activeQuery]?.status==="stale";
-  const sourceStates=Object.values(cache.source_status||{});const sourceOk=sourceStates.filter(x=>x.status==="ok"||x.status==="ok_empty").length;const sourceTotal=sourceStates.length;const sourceHealth=sourceTotal?" · المصادر المفحوصة "+sourceOk+"/"+sourceTotal:"";$("feedStatus").textContent=activeCity?(cache.city_news?.[cityCodes[activeCity]]?.status==="stale"?"تعذر تحديث أخبار المنطقة؛ نعرض آخر نسخة محفوظة.":"أخبار المناطق من المصادر الصحفية المحددة"):(stale?"تعذر تحديث هذا القسم؛ نعرض آخر نسخة محفوظة.":"تحديث الموجز آلياً كل 15 دقيقة"+sourceHealth);
+  const sourceStates=Object.values(cache.source_status||{});const sourceOk=sourceStates.filter(x=>x.status==="ok"||x.status==="ok_empty").length;const sourceTotal=sourceStates.length;const sourceHealth=sourceTotal?" · المصادر المفحوصة "+sourceOk+"/"+sourceTotal:"";$("feedStatus").textContent=activeCity?(cache.city_news?.[cityCodes[activeCity]]?.status==="stale"?"تعذر تحديث أخبار المنطقة؛ نعرض آخر نسخة محفوظة.":"أخبار المناطق من المصادر الصحفية المحددة"):(stale?"تعذر تحديث هذا القسم؛ نعرض آخر نسخة محفوظة.":"تحديث الموجز آلياً كل ساعة"+sourceHealth);
  }catch(e){
   if(articles.length){render();$("feedStatus").textContent="تعذر تحديث النسخة؛ نعرض آخر أخبار محمّلة."}
   else $("feed").innerHTML='<div class="empty">لم تصل بيانات هذا القسم بعد. سيظهر المحتوى بعد أول تحديث ناجح للمستودع.</div>';
@@ -194,6 +194,6 @@ $("sportViews").addEventListener("click",e=>{const b=e.target.closest("button[da
 
 $("categories").addEventListener("click",e=>{const b=e.target.closest("button[data-q],button[data-cyber]");if(!b)return;$("sportsPanel").style.display="none";$("offersPanel").style.display="none";$("feed").style.display="flex";document.querySelectorAll("#categories .chip").forEach(x=>x.classList.toggle("active",x===b));activeQuery=b.dataset.cyber?"__CYBER__":b.dataset.q;activeCity="";document.querySelectorAll("#cities .chip").forEach(x=>x.classList.toggle("active",x.dataset.city===""));$("feedTitle").textContent=b.textContent+" · الأخبار";loadNews()});
 $("cities").addEventListener("click",e=>{const b=e.target.closest("button[data-city]");if(!b)return;document.querySelectorAll("#cities .chip").forEach(x=>x.classList.toggle("active",x===b));activeCity=b.dataset.city;$("sportsPanel").style.display="none";$("offersPanel").style.display="none";$("feed").style.display="flex";$("feedTitle").textContent=activeCity?"أخبار "+activeCity:"أحدث الأخبار";loadNews()});
-$("city").addEventListener("change",()=>{loadPrayer();if(activeQuery==="السعودية طقس")loadNews()});loadPrayer();loadNews();setInterval(loadNews,30*60*1000);
+$("city").addEventListener("change",()=>{loadPrayer();if(activeQuery==="السعودية طقس")loadNews()});loadPrayer();loadNews();setInterval(loadNews,60*60*1000);
 </script>
 </body></html>
