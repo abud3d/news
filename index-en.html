@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#171d13"><meta name="description" content="Saudi AI — Saudi, Arab and global news briefing">
+<title>Saudi AI | News Briefing</title>
+<style>
+:root{--bg:#11160f;--panel:#1a2117;--panel2:#20291c;--line:#303b2b;--text:#edf1e6;--muted:#a6b09b;--olive:#a5b77a;--olive2:#c3d29b;--gold:#d5c28b;--red:#d78d78;--shadow:0 14px 38px #0005}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(900px 420px at 80% -10%,#35452a55,transparent),var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;line-height:1.65;text-align:left}
+a{color:inherit;text-decoration:none}.wrap{max-width:1180px;margin:auto;padding:0 18px}
+.topbar{border-bottom:1px solid var(--line);background:#11160feF;position:sticky;top:0;z-index:10;backdrop-filter:blur(14px)}
+.toprow{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{display:flex;align-items:center;gap:11px}.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(145deg,#a9bd7b,#596c43);color:#12170f;display:grid;place-items:center;font-weight:900;font-size:23px;box-shadow:0 5px 18px #9fb47a33}.brand strong{font-size:22px;letter-spacing:.2px}.brand small{display:block;color:var(--muted);font-size:11px;margin-top:-5px}
+.tools{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;min-width:0}.toprow{flex-wrap:nowrap;gap:7px}.citybox{white-space:nowrap;padding:6px 8px;gap:4px}.citybox select{width:auto;max-width:105px;font-size:12px}.datebox,.citybox{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:7px 11px;font-size:12px;color:var(--muted)}.datebox b{color:var(--text);display:block;font-size:13px}.citybox{display:flex;align-items:center;gap:7px}.citybox select{background:transparent;border:0;color:var(--text);font:inherit;outline:none}.citybox option{background:var(--panel);color:var(--text)}
+.prayer{margin:17px 0 19px;padding:13px 17px;border:1px solid #52633d;background:linear-gradient(100deg,#27331f,#1b2418);border-radius:15px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:var(--shadow)}.prayerlabel{color:var(--olive2);font-size:12px}.prayer strong{font-size:19px}.prayer .sub{font-size:12px;color:var(--muted)}.countdown{font-variant-numeric:tabular-nums;color:var(--gold);font-weight:700;font-size:17px;white-space:nowrap}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:22px 0 10px}.section-head h2{font-size:15px;margin:0}.section-head p{margin:0;color:var(--muted);font-size:12px}
+.chips{display:flex;gap:8px;overflow:auto;padding:3px 0 9px;scrollbar-width:thin}.chip{border:1px solid var(--line);background:var(--panel);color:#cbd3c1;padding:8px 15px;border-radius:999px;white-space:nowrap;font:inherit;font-size:13px;cursor:pointer;transition:.18s}.chip:hover,.chip.active{background:var(--olive);color:#172012;border-color:var(--olive);font-weight:700}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0 10px}.toolbar h1{font-size:21px;margin:0}.toolbar span{color:var(--muted);font-size:12px}.update-info{display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:left}.layout{display:grid;grid-template-columns:minmax(0,1fr) 285px;gap:18px;align-items:start}
+.feed{display:flex;flex-direction:column;gap:9px}.story{display:grid;grid-template-columns:35px minmax(0,1fr) auto;gap:10px;align-items:start;padding:14px 13px;background:linear-gradient(120deg,#1b2318,#171e15);border:1px solid var(--line);border-radius:13px;transition:.18s}.story:hover{border-color:#6c8050;transform:translateY(-1px)}.rank{color:#8d9a7e;font-size:14px;text-align:center;padding-top:1px}.story h3{font-size:15px;line-height:1.55;margin:0 0 5px;font-weight:650}.story h3 a:hover{color:var(--olive2)}.new-badge{display:inline-block;margin-inline-start:7px;padding:0 7px;border-radius:5px;background:#f4d03f;color:#302500;font-size:10px;font-weight:800;line-height:1.8;vertical-align:middle}.meta{display:flex;gap:9px;flex-wrap:wrap;color:var(--muted);font-size:11px}
+.story-meta{display:flex;align-items:center;gap:12px;flex-wrap:nowrap;white-space:nowrap;overflow-x:auto;scrollbar-width:none;margin-top:8px;color:var(--muted);font-size:11px}
+.story-meta::-webkit-scrollbar{display:none}
+.story-meta .meta-item{display:inline-flex;align-items:center;gap:4px;flex:0 0 auto}
+.story-meta a{color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.story-meta a:hover{color:var(--olive2)}
+.story-meta svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;flex:0 0 auto}
+.story-meta .publisher{color:var(--olive2);font-weight:650}
+.story-meta .share-link{color:var(--gold)}
+.story-meta .mobile-label{display:inline}
+@media(max-width:600px){.story-meta{gap:11px;font-size:0}.story-meta svg{width:17px;height:17px}.story-meta .mobile-label{display:none}.story-meta .publisher{font-size:11px}.story-meta .meta-item{gap:0}.story-meta .time-meta{font-size:10px;gap:3px}.story-meta .time-meta .mobile-label{display:inline}.story-meta .publisher .mobile-label{display:none}}.tag{color:var(--olive2);background:#34432a;border-radius:5px;padding:1px 7px}.story .open{color:var(--gold);font-size:11px;white-space:nowrap;padding-top:4px}
+.side{display:flex;flex-direction:column;gap:12px}.card{padding:15px;background:var(--panel);border:1px solid var(--line);border-radius:14px}.card h3{font-size:14px;margin:0 0 9px}.card p{font-size:12px;color:var(--muted);margin:0}.quicklinks{display:flex;flex-wrap:wrap;gap:7px}.quicklinks a{font-size:11px;border:1px solid var(--line);border-radius:8px;padding:5px 8px;color:#c7d0bd}.status{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted)}.dot{width:7px;height:7px;border-radius:50%;background:var(--olive)}.empty{padding:35px;text-align:center;color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:14px}.more-btn{width:100%;margin-top:12px;padding:12px;border:1px solid var(--olive);border-radius:11px;background:#26331f;color:var(--olive2);font:inherit;font-weight:700;cursor:pointer}.more-btn:hover{background:#34452a}
+footer{border-top:1px solid var(--line);margin-top:35px;padding:22px 0 30px;color:var(--muted);font-size:11px}.cities-title{font-size:13px;color:var(--muted);margin:0 0 7px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.toprow{padding:10px 0;align-items:flex-start}.tools{justify-content:flex-end}.datebox{display:none}.prayer{margin-top:12px}.story{grid-template-columns:25px minmax(0,1fr)}.story .open{display:none}}
+@media(max-width:480px){.wrap{padding:0 12px}.brand strong{font-size:19px}.logo{width:37px;height:37px}.side{grid-template-columns:1fr}.prayer strong{font-size:16px}.countdown{font-size:14px}.story h3{font-size:14px}}
+ .official-offer-links{display:flex;flex-wrap:wrap;gap:8px 16px;padding:8px 0}.official-offer-links a,.offers-posts a{color:var(--accent);text-decoration:underline;text-underline-offset:3px}.offers-posts{margin:0;padding:0 22px 0 0;display:grid;gap:9px}.offers-posts li{padding:5px 0;border-bottom:1px solid var(--line);line-height:1.7}.offers-posts .post-meta{color:var(--muted);font-size:12px;margin-inline-start:6px}
+/* Market dashboard */
+.market-panel{margin:16px 0 22px;padding:16px;background:linear-gradient(135deg,#1c2619,#151d14);border:1px solid #46583a;border-radius:17px;box-shadow:var(--shadow)}
+.market-panel[hidden]{display:none!important}.market-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}.market-head h2{font-size:18px;margin:0}.market-head p{font-size:11px;color:var(--muted);margin:3px 0 0}.market-strip{display:flex;gap:9px;overflow-x:auto;padding:3px 1px 12px;scroll-snap-type:x proximity;scrollbar-width:thin}.market-tile{flex:0 0 175px;text-align:left;background:#202b1d;border:1px solid var(--line);border-radius:12px;padding:11px;cursor:pointer;color:var(--text);font:inherit;scroll-snap-align:start}.market-tile:hover{border-color:var(--olive)}.market-tile strong{display:block;font-size:13px}.market-tile .value{display:block;font-size:18px;font-weight:800;margin:5px 0;font-variant-numeric:tabular-nums}.market-tile small{display:block;color:var(--muted);font-size:10px}.market-up{color:#7fd39a}.market-down{color:#ef8d83}.market-flat{color:#aeb7aa}.market-favs{border-top:1px solid var(--line);padding-top:13px;margin-top:3px}.market-favs h3{font-size:14px;margin:0 0 9px}.market-search{display:flex;gap:8px;flex-wrap:wrap}.market-search input{flex:1;min-width:180px;background:#11180f;border:1px solid var(--line);border-radius:9px;color:var(--text);padding:10px;font:inherit}.market-search button,.market-action{background:#34452a;border:1px solid #63784c;color:var(--olive2);border-radius:9px;padding:8px 12px;font:inherit;cursor:pointer}.market-list{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.market-stock{display:flex;align-items:center;gap:9px;background:#20291c;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12px}.market-stock button{background:none;border:0;color:var(--red);cursor:pointer;font-size:16px}.market-note{font-size:10px;color:var(--muted);margin-top:10px}.market-equities{margin:14px 0 4px;padding-top:12px;border-top:1px solid var(--line)}
+.market-equities h3{font-size:14px;margin:12px 0 6px;color:var(--olive2)}
+.market-stock-table{overflow-x:auto;border:1px solid var(--line);border-radius:10px;margin:8px 0 14px}
+.market-stock-row{display:grid;grid-template-columns:minmax(180px,2fr) repeat(3,minmax(90px,1fr)) minmax(150px,1.4fr);gap:10px;min-width:680px;padding:9px 11px;border-bottom:1px solid #ffffff12;font-size:11px;align-items:center}
+.market-stock-row:last-child{border-bottom:0}
+.market-stock-head{background:#263321;color:var(--olive2);font-weight:700}
+.market-modal{position:fixed;inset:0;background:#000b;z-index:30;display:none;place-items:center;padding:16px}.market-modal.open{display:grid}.market-dialog{width:min(620px,100%);background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;max-height:90vh;overflow:auto}.market-dialog-head{display:flex;justify-content:space-between;align-items:center}.market-dialog h3{margin:0}.market-dialog canvas{width:100%;height:180px;background:#121910;border-radius:10px;margin:12px 0}.market-dialog p{color:var(--muted);font-size:12px}.market-close{background:none;border:0;color:var(--text);font-size:24px;cursor:pointer}
+@media(max-width:600px){.market-panel{padding:12px}.market-tile{flex-basis:155px}}
+.guide-menu{position:relative;flex:0 0 auto}.guide-menu summary{list-style:none;display:flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0;border:1px solid #63784c;border-radius:9px;background:#26331f;color:var(--olive2);font-size:0;font-weight:700;white-space:nowrap;cursor:pointer}.guide-menu summary:before{content:"☷";font-size:19px;line-height:1}.guide-menu summary::-webkit-details-marker{display:none}.guide-menu summary:after{content:"";display:none}.guide-menu[open] summary{border-color:var(--olive)}.guide-dropdown{position:absolute;top:calc(100% + 8px);inset-inline-end:0;z-index:25;min-width:170px;padding:7px;background:#1a2117;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);display:grid;gap:4px}.guide-dropdown a{padding:9px 10px;border-radius:8px;font-size:13px;color:var(--text)}.guide-dropdown a:hover{background:#34452a;color:var(--olive2)}@media(max-width:600px){.toprow{gap:5px}.tools{gap:4px}.guide-menu summary{width:31px;height:31px}.citybox{padding:5px 6px}.citybox select{max-width:76px;font-size:10px}}@media(max-width:380px){.brand strong{font-size:14px}.brand small{font-size:8px}.logo{width:30px;height:30px}.datebox{display:none}.citybox select{max-width:65px}}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="wrap toprow">
+<a class="brand" href="#"><span class="logo">AI</span><span><strong>Saudi AI</strong><small>Saudi AI · News Briefing</small></span></a>
+<div class="tools"><a class="datebox" href="index.html" lang="ar" dir="rtl" style="white-space:nowrap">العربية</a>
+<details class="guide-menu"><summary aria-label="Directory & Services" title="Directory & Services">☷</summary><nav class="guide-dropdown" aria-label="قائمة Directory & Services"><a href="services.html">1. Services</a><a href="directory.html">2. Directory</a></nav></details>
+<div class="datebox"><b id="clock">--:--:--</b><span id="hijri">Loading Hijri date…</span></div>
+<label class="citybox"><select id="city" aria-label="Select city">
+<option value="Riyadh">Riyadh</option><option value="Buraydah">Buraydah · Qassim</option><option value="Hail">Hail</option><option value="Jeddah">Jeddah</option><option value="Makkah">Makkah</option><option value="Madinah">Madinah</option><option value="Dammam">Dammam</option><option value="Abha">Abha</option><option value="Tabuk">Tabuk</option><option value="Taif">Taif</option><option value="Jazan">Jazan</option><option value="Najran">Najran</option><option value="AlBaha">Al Baha</option><option value="Sakaka">Sakaka</option><option value="Arar">Arar</option><option value="AlKhobar">Al Khobar</option><option value="AlAhsa">Al Ahsa</option><option value="Saihat">Saihat</option><option value="ArRass">Ar Rass</option><option value="Majmaah">Al Majma'ah</option>
+</select></label>
+</div></div></header>
+<main class="wrap">
+<section class="prayer"><div><div class="prayerlabel">Next prayer · <span id="prayerCity">Riyadh</span></div><strong id="nextPrayer">Loading prayer times…</strong><div class="sub" id="prayerTime">According to the Umm Al-Qura calendar</div></div><div class="countdown" id="remaining">--:--:--</div></section>
+<div class="section-head"><h2>Main Sections</h2><p>Choose a topic to follow</p></div>
+<nav class="chips" id="categories">
+<button class="chip active" data-q="Saudi Arabia news">Home</button><button class="chip" data-q="Saudi Arabia artificial intelligence">AI</button><button class="chip" data-q="Saudi Arabia technology">Technology</button><button class="chip" data-economy="1">Economy</button><button class="chip" data-q="Saudi Arabia startups">Startups</button><button class="chip" data-q="السعودية Travel">Travel</button><button class="chip" data-q="السعودية Education">Education</button><button class="chip" data-q="Jobs السعودية Jobs شاغرة توظيف">Jobs</button><button class="chip" data-q="السعودية Health">Health</button><button class="chip" data-q="السعودية Weather">Weather</button><button class="chip" data-q="العالم أخبار">World</button><button class="chip" data-q="Arab News أخبار">Arab News</button><button class="chip" data-q="Hacker News technology startups">Hacker News</button><button class="chip" data-cyber="1">Cybersecurity</button><button class="chip" data-sport="1">⚽ Sports</button><button class="chip" data-offers="1">🔥 Deals</button>
+</nav>
+
+<section id="marketPanel" class="market-panel" hidden aria-label="Markets & Prices">
+ <div class="market-head"><div><h2>📊 Markets & Prices</h2><p>A snapshot of Saudi markets and prices. Values are shown only with a source and update time.</p></div><button class="market-action" id="marketRefresh" type="button">Refresh Data</button></div>
+ <div class="market-strip" id="marketStrip" aria-live="polite">
+  <button class="market-tile" data-market="tasi"><strong>TASI Index</strong><span class="value">Loading…</span><small>Yahoo Finance · Market data</small></button>
+   <button class="market-tile" data-market="nomu"><strong>NOMU Index</strong><span class="value">Awaiting first update</span><small>SAHMK · After market close</small></button>
+  <button class="market-tile" data-market="gold"><strong>Gold · 24K & 21K</strong><span class="value">Loading…</span><small>World — تحويل تقديري للريال</small></button>
+  <button class="market-tile" data-market="oil"><strong>Brent Crude</strong><span class="value">Loading…</span><small>Yahoo Finance · BZ=F</small></button>
+  <button class="market-tile" data-market="currency"><strong>Currencies</strong><span class="value">Loading…</span><small>Reference exchange rates</small></button>
+  <button class="market-tile" data-market="gas"><strong>Household Gas</strong><span class="value">37 SAR / 11 kg</span><small>Gasco · Includes delivery and VAT · Effective 1 July 2026</small></button>
+  <button class="market-tile" data-market="fuel"><strong>Fuel</strong><span class="value">91 · 95 · Diesel</span><small>أسعار أرامكو Ar Rassمية — تُضاف عند التحقق</small></button>
+  <button class="market-tile" data-market="electricity"><strong>Electricity</strong><span class="value">التعرفة Ar Rassمية</span><small>By consumption tier and effective date</small></button>
+  <button class="market-tile" data-market="water"><strong>Water</strong><span class="value">التعرفة Ar Rassمية</span><small>By consumption and effective date</small></button>
+ </div>
+ <div class="market-favs"><h3>⭐ My Watchlist</h3><div class="market-search"><input id="stockSearch" type="search" placeholder="Search by company name or Tadawul symbol (e.g. 2222)" aria-label="Search Saudi stocks"><button id="stockAdd" type="button">Add Stock</button></div><div id="stockResults" class="market-list"></div><div id="stockList" class="market-list"><span class="market-note">Add stocks to see them here. Your list is saved in this browser without an account.</span></div></div>
+ <p class="market-note" id="marketUpdated">Last update: No data retrieved yet.</p>
+</section>
+<div class="market-modal" id="marketModal" role="dialog" aria-modal="true" aria-labelledby="marketModalTitle"><div class="market-dialog"><div class="market-dialog-head"><h3 id="marketModalTitle">Index Details</h3><button class="market-close" id="marketClose" aria-label="Close">×</button></div><p id="marketModalMeta"></p><canvas id="marketChart" width="560" height="180"></canvas><p id="marketModalSource"></p></div></div>
+<div class="section-head"><h2>Follow News by City</h2><p>Choose a city to filter local news</p></div>
+<nav class="chips" id="cities">
+<button class="chip active" data-city="">All Saudi Arabia</button><button class="chip" data-city="Riyadh">Riyadh</button><button class="chip" data-city="Qassim">Qassim</button><button class="chip" data-city="Hail">Hail</button><button class="chip" data-city="Makkah">Makkah</button><button class="chip" data-city="Madinah">Madinah</button><button class="chip" data-city="Jeddah">Jeddah</button><button class="chip" data-city="Dammam">Dammam</button><button class="chip" data-city="Al Khobar">Al Khobar</button><button class="chip" data-city="Abha">Abha</button><button class="chip" data-city="Tabuk">Tabuk</button><button class="chip" data-city="Buraydah">Buraydah</button><button class="chip" data-city="Taif">Taif</button><button class="chip" data-city="Jazan">Jazan</button><button class="chip" data-city="Najran">Najran</button><button class="chip" data-city="Al Baha">Al Baha</button><button class="chip" data-city="Sakaka">Sakaka</button><button class="chip" data-city="Arar">Arar</button>
+</nav>
+<section id="sportsPanel" class="card" style="display:none;margin:16px 0">
+<div class="section-head"><h2>⚽ Riyadhة السعودية والآسيوية</h2><p>Scores, fixtures and team standings</p></div>
+<div class="chips" id="sportLeagues"><button class="chip active" data-league="ksa.1">Saudi Pro League</button><button class="chip" data-league="afc.champions">AFC Champions League Elite</button></div>
+<div class="chips" id="sportViews"><button class="chip active" data-view="news">News</button><button class="chip" data-view="table">League Table</button><button class="chip" data-view="past">Previous Matches</button><button class="chip" data-view="upcoming">Upcoming Matches</button></div>
+<div id="sportsContent" class="feed"><div class="empty">جارٍ تحميل بيانات Riyadhة…</div></div>
+<div class="meta" style="margin-top:10px">Source: ESPN · Some competition data may be delayed or unavailable.</div>
+</section>
+<section id="offersPanel" class="card" style="display:none;margin:16px 0">
+<div class="section-head"><h2>🔥 Deals & Discounts</h2><p>Latest store posts and circulars</p></div>
+<div class="section-head"><h3>روابط العروض Ar Rassمية</h3></div>
+<div class="official-offer-links">
+<a href="https://www.amazon.sa/gp/goldbox" target="_blank" rel="noopener">Amazon Saudi Arabia</a>
+<a href="https://www.noon.com/saudi-ar/deals/" target="_blank" rel="noopener">Noon</a>
+<a href="https://www.jarir.com/special-offers/" target="_blank" rel="noopener">Jarir</a>
+<a href="https://www.ikea.com/sa/ar/offers/" target="_blank" rel="noopener">IKEA</a>
+<a href="https://www.othaimmarkets.com/ar/offers" target="_blank" rel="noopener">Othaim Markets</a>
+</div>
+<div class="section-head" style="margin-top:18px"><h3>Latest Posts</h3><p id="offersUpdated">Loading posts…</p></div>
+<ul id="offersFeed" class="offers-posts"><li class="empty">Loading posts…</li></ul>
+<div class="meta" style="margin-top:10px">المنشورات from SnapFlyer، وروابط الشراء والعروض Ar Rassمية تفتح مواقع المتاجر نفسها.</div>
+</section>
+<div class="toolbar"><h1 id="feedTitle">أحدث News</h1><div class="update-info"><span id="updated">Updating the briefing…</span></div></div>
+<div class="layout"><section><div class="feed" id="feed"><div class="empty">جارٍ تحميل News from المصادر…</div></div><button class="more-btn" id="loadMore" type="button" style="display:none">عرض المزيد from News</button></section>
+<aside class="side">
+<div class="card"><h3>عن Saudi AI</h3><p>موجز Arab News سريع يجمع أبرز News حسب الموضوع والمنطقة، مع رابط Al Khobar ومصدره الأصلي. Saudi AI مشروع مستقل قيد التطوير.</p></div>
+<div class="card"><h3>Sources & Coverage</h3><div class="quicklinks"><a href="https://www.spa.gov.sa/" target="_blank" rel="noopener">SPA</a><a href="https://sabq.org/" target="_blank" rel="noopener">Sabq</a><a href="https://www.okaz.com.sa/" target="_blank" rel="noopener">Okaz</a><a href="https://www.al-jazirah.com/" target="_blank" rel="noopener">Al Jazeera</a><a href="https://www.alwatan.com.sa/" target="_blank" rel="noopener">Al Watan</a><a href="https://www.alriyadh.com/" target="_blank" rel="noopener">Riyadh</a><a href="https://al-marsd.com/" target="_blank" rel="noopener">Al Marsad</a><a href="https://www.alarabiya.net/" target="_blank" rel="noopener">الArab Newsة</a><a href="https://www.aljazeera.net/" target="_blank" rel="noopener">Al Jazeera نت</a><a href="https://www.spl.com.sa/ar" target="_blank" rel="noopener">دوري روشن Ar Rassمي</a><a href="https://www.saudiexchange.sa/" target="_blank" rel="noopener">Saudi Exchange</a><a href="https://news.ycombinator.com/" target="_blank" rel="noopener">Hacker News</a></div></div>
+<div class="card"><h3>Update Status</h3><div class="status"><span class="dot"></span><span id="feedStatus">تحديث News تلقائياً كل 15 minutes</span></div><p style="margin-top:8px">News المعروضة روابط from مصادر خارجية، وقد يختلف توفرها حسب المصدر.</p></div>
+</aside></div>
+</main>
+<footer><div class="wrap">Saudi AI Saudi AI · Preview version 1.1.0 · Talal @ 2026 · <a href="https://abud3d.github.io/welcome/" target="_blank" rel="noopener">My GitHub profile</a> · تُعرض News باسم Original Publisher مع رابط Al Khobar. تُستخدم خدمة RSS لجلب العناوين فقط. مواقيت الصلاة from AlAdhan.</div></footer>
+<script>
+const cityNames={Riyadh:"Riyadh",Buraydah:"Buraydah · Qassim",Hail:"Hail",Jeddah:"Jeddah",Makkah:"Makkah",Madinah:"Madinah",Dammam:"Dammam",Abha:"Abha",Tabuk:"Tabuk",Taif:"Taif",Jazan:"Jazan",Najran:"Najran",AlBaha:"Al Baha",Sakaka:"Sakaka",Arar:"Arar",AlKhobar:"Al Khobar",AlAhsa:"Al Ahsa",Saihat:"Saihat",ArRass:"Ar Rass",Majmaah:"Al Majma'ah"};
+const cityCodes={"Riyadh":"Riyadh","Qassim":"Buraydah","Buraydah":"Buraydah","Hail":"Hail","Makkah":"Makkah","Makkah":"Makkah","Madinah":"Madinah","Jeddah":"Jeddah","Dammam":"Dammam","Al Khobar":"AlKhobar","Al Ahsa":"AlAhsa","الهفوف":"AlAhsa","Saihat":"Saihat","Ar Rass":"ArRass","Al Majma'ah":"Majmaah","Abha":"Abha","عسير":"Abha","Tabuk":"Tabuk","Taif":"Taif","Jazan":"Jazan","Najran":"Najran","Al Baha":"AlBaha","Sakaka":"Sakaka","الجوف":"Sakaka","Arar":"Arar","الحدود الشمالية":"Arar"};
+const $=id=>document.getElementById(id);let activeQuery="Saudi Arabia news",activeCity="",articles=[],visibleCount=10,prayers=null,nextAt=null,currentLeague="ksa.1",sportView="news";
+function tick(){const d=new Date();$("clock").textContent=new Intl.DateTimeFormat("ar-SA",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true,timeZone:"Asia/Riyadh"}).format(d);if(nextAt){let ms=Math.max(0,nextAt-Date.now());let h=Math.floor(ms/36e5),m=Math.floor(ms%36e5/6e4),s=Math.floor(ms%6e4/1e3);$("remaining").textContent=[h,m,s].map(n=>String(n).padStart(2,"0")).join(":")}}
+setInterval(tick,1000);tick();
+async function loadPrayer(){const city=$("city").value;$("prayerCity").textContent=cityNames[city]||city;try{const url="https://api.aladhan.com/v1/timingsByCity?city="+encodeURIComponent(city)+"&country=Saudi%20Arabia&method=4";const res=await fetch(url);if(!res.ok)throw Error("Prayer API");const j=await res.json();const data=j.data;const t=data.timings;$("hijri").textContent=data.date.hijri.weekday.ar+"، "+data.date.hijri.day+" "+data.date.hijri.month.ar+" "+data.date.hijri.year+" هـ";const keys=[["Fajr","Fajr"],["Sunrise","Sunrise"],["Dhuhr","Dhuhr"],["Asr","Asr"],["Maghrib","Maghrib"],["Isha","Isha"]];const now=new Date();const nowM=now.getHours()*60+now.getMinutes();let chosen=keys.find(([n,k])=>{const p=t[k].split(" ")[0].split(":").map(Number);return p[0]*60+p[1]>nowM});let target=new Date();if(!chosen){chosen=keys[0];target.setDate(target.getDate()+1)}const parts=t[chosen[1]].split(" ")[0].split(":").map(Number);target.setHours(parts[0],parts[1],0,0);nextAt=target.getTime();$("nextPrayer").textContent=chosen[0];$("prayerTime").textContent="Today · "+t[chosen[1]]+" · Umm Al-Qura";tick()}catch(e){$("nextPrayer").textContent="Unable to load prayer times";$("prayerTime").textContent="Check your connection and try again"}}
+async function readRss(rss){let lastError;const endpoints=["https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(rss),"https://rssjson.vercel.app/api?url="+encodeURIComponent(rss)];for(const endpoint of endpoints){try{const response=await fetch(endpoint);if(!response.ok)throw Error("HTTP "+response.status);const data=await response.json();if(data.status&&data.status!=="ok")throw Error(data.message||"RSS conversion failed");const items=data.items||data.data?.items||[];if(!Array.isArray(items))throw Error("Invalid RSS response");return items}catch(error){lastError=error}}throw lastError||Error("RSS service unavailable")}
+async function googleFeed(q){const rss="https://news.google.com/rss/search?q="+encodeURIComponent(q)+"&hl=ar&gl=SA&ceid=SA:ar";const items=await readRss(rss);return items.map(x=>{const title=x.title||"";const bits=title.split(" - ");const suffix=bits.length>1?bits[bits.length-1].trim():"";let publisher=(x.author||x.source?.title||x.source||"").trim();if(!publisher||/google news/i.test(publisher))publisher=suffix||"Original Publisher";return {title,url:x.link||x.url,source:publisher,date:x.pubDate||x.date||x.isoDate,description:(x.description||x.content||"").replace(/<[^>]*>/g," ").slice(0,220)}})}
+async function hackerFeed(){const r=await fetch("https://hn.algolia.com/api/v1/search?tags=front_page");const j=await r.json();return (j.hits||[]).map(x=>({title:x.title,url:x.url||"https://news.ycombinator.com/item?id="+x.objectID,source:"Hacker News",date:x.created_at,description:x.story_text||""}))}
+async function cyberFeed(){const rss="https://thehackernews.com/feeds/posts/default?alt=rss";const items=await readRss(rss);return items.map(x=>({title:x.title||"",url:x.link||x.url,source:"The Hacker News",date:x.pubDate||x.date||x.isoDate,description:(x.description||x.content||"").replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim().slice(0,260)}))}
+function articleUrl(a){return "article.html?"+new URLSearchParams({title:a.title||"",url:a.url||"",source:a.source||"",date:a.date||"",description:a.description||""}).toString()}
+async function shareStory(e,a){e.preventDefault();const link=new URL(articleUrl(a),location.href).href;try{if(navigator.share)await navigator.share({title:a.title,url:link});else{await navigator.clipboard.writeText(link);alert("تم نسخ رابط Al Khobar")}}catch(err){}}
+function render(){
+ const list=articles;
+ const shown=list.slice(0,visibleCount);
+ $("loadMore").style.display=list.length>visibleCount?"block":"none";
+ $("loadMore").textContent="عرض المزيد from News ("+Math.min(visibleCount,list.length)+" from "+list.length+")";
+ $("feed").innerHTML=shown.length?shown.map((a,i)=>{
+  const shareData=JSON.stringify(a).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+  const catLabel=currentCategoryLabel(),cityLabel=activeCity||"";
+  const shareIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="m8.7 10.7 6.6-4.1M8.7 13.3l6.6 4.1"></path></svg>';
+  const categoryIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h7v7H4zM14 5h6v4h-6zM14 12h6v7h-6zM4 15h7v4H4z"></path></svg>';
+  const cityIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>';
+  const timeIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>';
+  const meta='<div class="story-meta"><span class="meta-item publisher">'+esc(a.source||"Original Publisher")+'</span><a class="meta-item" href="#" data-filter-category="1" title="View category">'+categoryIcon+'<span class="mobile-label">'+esc(catLabel)+'</span></a>'+(cityLabel?'<a class="meta-item" href="#" data-filter-city="'+esc(cityLabel)+'" title="عرض أخبار '+esc(cityLabel)+'">'+cityIcon+'<span class="mobile-label">'+esc(cityLabel)+'</span></a>':'')+'<a class="meta-item share-link" href="#" onclick="shareStory(event, '+shareData+')" title="Share">'+shareIcon+'<span class="mobile-label">Share</span></a><span class="meta-item time-meta" title="'+esc(dateLabel(a.date))+'">'+timeIcon+'<span class="mobile-label">'+dateLabel(a.date)+'</span></span></div>';
+  return '<article class="story"><div class="rank">'+String(i+1).padStart(2,"0")+'</div><div><h3><a href="'+esc(articleUrl(a))+'">'+esc(a.title)+'</a>'+(a.is_new?'<span class="new-badge">NEW</span>':'')+'</h3>'+meta+'</div></article>';
+ }).join(""):'<div class="empty">لا توجد نتائج لهذه Madinah في الموجز الحالي. جرّب قسماً آخر.</div>';
+}
+function esc(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function currentCategoryLabel(){const b=[...document.querySelectorAll("#categories button")].find(x=>x.dataset.q===activeQuery||(activeQuery==="__CYBER__"&&x.dataset.cyber));return b?b.textContent.trim():(activeQuery==="السعودية Weather"?"Weather":"News")}
+function activateCategoryFromMeta(){const b=[...document.querySelectorAll("#categories button")].find(x=>x.dataset.q===activeQuery||(activeQuery==="__CYBER__"&&x.dataset.cyber));if(b)b.click()}
+function dateLabel(s){if(!s)return "Recently";const d=new Date(s);if(isNaN(d))return "Recently";const sec=Math.max(0,Math.floor((Date.now()-d.getTime())/1000));if(sec<60)return "Just now";if(sec<3600)return " ago"+Math.floor(sec/60)+" minutes";if(sec<86400)return " ago"+Math.floor(sec/3600)+" hours";if(sec<604800)return " ago"+Math.floor(sec/86400)+" days";return new Intl.DateTimeFormat("ar-SA",{dateStyle:"medium"}).format(d)}
+let cachedNews=null;
+async function readNewsCache(){const r=await fetch("data/news.json?ts="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("news cache "+r.status);const j=await r.json();if(!j||!j.categories)throw Error("invalid news cache");cachedNews=j;return j}
+function cachedCategory(key){return cachedNews?.categories?.[key]?.items||[]}
+function relativeTime(s){if(!s)return "Unknown";const d=new Date(s);if(isNaN(d))return "Unknown";const sec=Math.max(0,Math.floor((Date.now()-d.getTime())/1000));if(sec<60)return "Now";if(sec<3600)return " ago"+Math.floor(sec/60)+" minutes";if(sec<86400)return " ago"+Math.floor(sec/3600)+" hours";if(sec<2592000)return " ago"+Math.floor(sec/86400)+" days";return new Intl.DateTimeFormat("ar-SA",{dateStyle:"medium",timeStyle:"short"}).format(d)}
+function setUpdateLabel(id,t,prefix){const el=$(id);if(!el)return;const count=id==="updated"&&cachedNews&&Number.isFinite(Number(cachedNews.fetched_news_count))?" · عدد News المسحوبة: "+Number(cachedNews.fetched_news_count):"";el.textContent=prefix+relativeTime(t)+count;el.title=t?new Intl.DateTimeFormat("ar-SA",{dateStyle:"medium",timeStyle:"short"}).format(new Date(t)):""}
+function cacheTime(){const t=cachedNews?.updated_at;return t?relativeTime(t):"The first update has not completed yet"}
+let cachedOffersUpdatedAt=null;
+setInterval(()=>{if(cachedNews?.updated_at&&$("updated").textContent)setUpdateLabel("updated",cachedNews.updated_at,"Last repository update ");if(cachedOffersUpdatedAt&&$("offersUpdated").textContent)setUpdateLabel("offersUpdated",cachedOffersUpdatedAt,"آخر تحديث ")},60000)
+async function loadOffers(){
+ const box=$("offersFeed");box.innerHTML='<li class="empty">Loading posts…</li>';
+ try{
+  const response=await fetch("data/offers.json?ts="+Date.now(),{cache:"no-store"});
+  if(!response.ok)throw Error("offers cache "+response.status);
+  const data=await response.json(),items=(data.items||[]).slice(0,30);
+  if(!items.length)throw Error("لا توجد منشورات متاحة حالياً");
+  box.innerHTML=items.map(a=>'<li><a href="'+esc(a.url)+'" target="_blank" rel="noopener">'+esc(a.title)+'</a><span class="post-meta">'+esc(a.source||"SnapFlyer")+'</span></li>').join("");
+  cachedOffersUpdatedAt=data.updated_at||null;setUpdateLabel("offersUpdated",cachedOffersUpdatedAt,"آخر تحديث ");
+ }catch(err){box.innerHTML='<li class="empty">تعذر جلب المنشورات Now. أعد المحاولة لاحقاً.</li>';$("offersUpdated").textContent="تعذر التحديث"}
+}
+async function loadNews(){
+ visibleCount=10;$("loadMore").style.display="none";
+ try{
+  const cache=await readNewsCache();let items=[];
+  if(activeQuery==="السعودية Weather"){const code=activeCity?(cityCodes[activeCity]||$("city").value):$("city").value,w=cache.weather?.[code],news=cache.weather_news?.[code]?.items||[];items=[...(w?[w]:[]),...news]}
+  else if(activeCity){const code=cityCodes[activeCity];items=code?(cache.city_news?.[code]?.items||[]):[]}
+  else if(activeQuery==="__CYBER__")items=cachedCategory("__CYBER__");
+  else if(activeQuery.includes("Hacker News"))items=cachedCategory("HACKER_NEWS");
+  else items=cachedCategory(activeQuery);
+  if(!items.length)throw Error("لا توجد بيانات مخزنة لهذا القسم بعد");
+  articles=items.slice().sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+  render();
+  setUpdateLabel("updated",cache.updated_at,"Last repository update ");
+  const stale=cache.categories?.[activeQuery]?.status==="stale";
+  const sourceStates=Object.values(cache.source_status||{});const sourceOk=sourceStates.filter(x=>x.status==="ok"||x.status==="ok_empty").length;const sourceTotal=sourceStates.length;const sourceHealth=sourceTotal?" · المصادر المفحوصة "+sourceOk+"/"+sourceTotal:"";$("feedStatus").textContent=activeCity?(cache.city_news?.[cityCodes[activeCity]]?.status==="stale"?"تعذر تحديث أخبار المنطقة؛ نعرض آخر نسخة محفوظة.":"أخبار المناطق from المصادر الصحفية المحددة"):(stale?"تعذر تحديث هذا القسم؛ نعرض آخر نسخة محفوظة.":"تحديث الموجز آلياً كل 15 minutes"+sourceHealth);
+ }catch(e){
+  if(articles.length){render();$("feedStatus").textContent="تعذر تحديث النسخة؛ نعرض آخر أخبار محمّلة."}
+  else $("feed").innerHTML='<div class="empty">لم تصل بيانات هذا القسم بعد. سيظهر المحتوى بعد أول تحديث ناجح للمستودع.</div>';
+  setUpdateLabel("updated",cachedNews?.updated_at,"Last repository update ");if(!cachedNews)$("updated").textContent="بانتظار أول تشغيل";
+ }
+}
+
+async function loadSports(){
+ const box=$("sportsContent");box.innerHTML='<div class="empty">جارٍ تحميل البيانات Riyadhية…</div>';
+ try{
+  if(sportView==="news"){
+   await readNewsCache();
+   const query=currentLeague==="ksa.1"
+    ? "Saudi Pro League الهلال النصر الاتحاد الأهلي الشباب أخبار"
+    : "AFC Champions League Elite الهلال الأهلي الاتحاد أخبار";
+   const items=cachedCategory(currentLeague==="ksa.1"?"SPORT_KSA":"SPORT_AFC");
+   if(!items.length){box.innerHTML='<div class="empty">لا توجد أخبار رياضية متاحة حالياً لهذه المسابقة.</div>';return}
+   box.innerHTML=items.map((a,i)=>'<article class="story"><div class="rank">'+String(i+1).padStart(2,"0")+'</div><div><h3><a href="'+esc(articleUrl(a))+'">'+esc(a.title)+'</a></h3><div class="meta"><span class="tag">'+esc(a.source||"Original Publisher")+'</span><span>'+dateLabel(a.date)+'</span></div></div></article>').join("")
+  }else if(sportView==="table"){
+   const r=await fetch("https://site.api.espn.com/apis/v2/sports/soccer/"+currentLeague+"/standings");
+   if(!r.ok)throw Error("standings");const j=await r.json();
+   const groups=j.children||[];let rows=[];groups.forEach(g=>(g.standings?.entries||[]).forEach(e=>rows.push({team:e.team?.displayName||"—",stats:Object.fromEntries((e.stats||[]).map(s=>[s.name,s.displayValue??s.value]))})));
+   if(!rows.length)throw Error("empty table");
+   const stat=(x,...keys)=>{for(const k of keys)if(x.stats[k]!==undefined)return x.stats[k];return "—"};
+   box.innerHTML='<div style="overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap"><thead><tr>'+["م","الفريق","لعب","فاز","تعادل","خسر","له","عليه","النقاط"].map(x=>'<th style="padding:9px;border-bottom:1px solid var(--line);text-align:right;color:var(--olive2)">'+x+'</th>').join("")+'</tr></thead><tbody>'+rows.map((x,i)=>'<tr>'+['<td style="padding:9px;border-bottom:1px solid var(--line)">'+(i+1)+'</td>','<td style="padding:9px;border-bottom:1px solid var(--line);font-weight:700">'+esc(x.team)+'</td>',...[[ "gamesPlayed","played"],["wins"],["ties","draws"],["losses"],["pointsFor","goalsFor"],["pointsAgainst","goalsAgainst"],["points"]].map(keys=>'<td style="padding:9px;border-bottom:1px solid var(--line)">'+esc(stat(x,...keys))+'</td>')].join("")+'</tr>').join("")+'</tbody></table></div>';
+  }else{
+   const now=new Date(),start=new Date(now);start.setDate(start.getDate()-35);const end=new Date(now);end.setDate(end.getDate()+35);
+   const fmt=d=>d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0");
+   const r=await fetch("https://site.api.espn.com/apis/site/v2/sports/soccer/"+currentLeague+"/scoreboard?dates="+fmt(start)+"-"+fmt(end));
+   if(!r.ok)throw Error("scoreboard");const j=await r.json();const events=j.events||[];
+   const matches=events.filter(e=>{const d=new Date(e.date);return sportView==="past"?d<now&&(e.status?.type?.completed||e.status?.type?.state==="post"):d>=now||e.status?.type?.state==="in"});
+   if(!matches.length){box.innerHTML='<div class="empty">لا توجد مباريات متاحة في هذه الفترة حالياً.</div>';return}
+   box.innerHTML=matches.sort((a,b)=>new Date(a.date)-new Date(b.date)).map(e=>{const comp=e.competitions?.[0],teams=comp?.competitors||[],home=teams.find(t=>t.homeAway==="home")||teams[0],away=teams.find(t=>t.homeAway==="away")||teams[1],status=e.status?.type?.shortDetail||e.status?.type?.detail||"";return '<article class="story"><div class="rank">⚽</div><div><h3>'+esc(home?.team?.displayName||"الفريق الأول")+' <span style="color:var(--gold)">'+(home?.score??"—")+' - '+(away?.score??"—")+'</span> '+esc(away?.team?.displayName||"الفريق الثاني")+'</h3><div class="meta"><span>'+new Intl.DateTimeFormat("ar-SA",{dateStyle:"medium",timeStyle:"short",timeZone:"Asia/Riyadh"}).format(new Date(e.date))+'</span><span class="tag">'+esc(status)+'</span></div></div></article>'}).join("");
+  }
+ }catch(err){box.innerHTML='<div class="empty">تعذر تحميل بيانات هذه المسابقة from المصدر حالياً. جرّب التحديث لاحقاً.</div>'}
+}
+$("categories").addEventListener("click",e=>{const b=e.target.closest("button[data-economy]");if(!b)return;e.preventDefault();document.querySelectorAll("#categories .chip").forEach(x=>x.classList.toggle("active",x===b));$("sportsPanel").style.display="none";$("offersPanel").style.display="none";$("marketPanel").hidden=false;$("feed").style.display="none";$("loadMore").style.display="none";$("feedTitle").textContent="";$("updated").textContent="";$("marketPanel").scrollIntoView({behavior:"smooth",block:"start"})});
+$("categories").addEventListener("click",e=>{const b=e.target.closest("button[data-offers]");if(!b)return;document.querySelectorAll("#categories .chip").forEach(x=>x.classList.toggle("active",x===b));$("sportsPanel").style.display="none";$("offersPanel").style.display="block";$("feed").style.display="none";$("loadMore").style.display="none";$("feedTitle").textContent="";$("updated").textContent="";loadOffers();$("offersPanel").scrollIntoView({behavior:"smooth",block:"start"})});
+$("loadMore").addEventListener("click",()=>{visibleCount+=10;render()});
+$("feed").addEventListener("click",e=>{const cat=e.target.closest("a[data-filter-category]");if(cat){e.preventDefault();activateCategoryFromMeta();return}const city=e.target.closest("a[data-filter-city]");if(city){e.preventDefault();const name=city.dataset.filterCity;const b=[...document.querySelectorAll("#cities button")].find(x=>x.dataset.city===name);if(b)b.click()}});
+
+$("categories").addEventListener("click",e=>{const b=e.target.closest("button[data-sport]");if(!b)return;$("offersPanel").style.display="none";document.querySelectorAll("#categories .chip").forEach(x=>x.classList.toggle("active",x===b));$("sportsPanel").style.display="block";$("feed").style.display="none";$("loadMore").style.display="none";$("feedTitle").textContent="";$("updated").textContent="";loadSports()});
+$("sportLeagues").addEventListener("click",e=>{const b=e.target.closest("button[data-league]");if(!b)return;currentLeague=b.dataset.league;document.querySelectorAll("#sportLeagues .chip").forEach(x=>x.classList.toggle("active",x===b));loadSports()});
+$("sportViews").addEventListener("click",e=>{const b=e.target.closest("button[data-view]");if(!b)return;sportView=b.dataset.view;document.querySelectorAll("#sportViews .chip").forEach(x=>x.classList.toggle("active",x===b));loadSports()});
+
+$("categories").addEventListener("click",e=>{const b=e.target.closest("button[data-q],button[data-cyber]");if(!b)return;$("sportsPanel").style.display="none";$("offersPanel").style.display="none";$("feed").style.display="flex";document.querySelectorAll("#categories .chip").forEach(x=>x.classList.toggle("active",x===b));activeQuery=b.dataset.cyber?"__CYBER__":b.dataset.q;activeCity="";document.querySelectorAll("#cities .chip").forEach(x=>x.classList.toggle("active",x.dataset.city===""));$("feedTitle").textContent=b.textContent+" · News";loadNews()});
+$("cities").addEventListener("click",e=>{const b=e.target.closest("button[data-city]");if(!b)return;$("marketPanel").hidden=true;document.querySelectorAll("#cities .chip").forEach(x=>x.classList.toggle("active",x===b));activeCity=b.dataset.city;$("sportsPanel").style.display="none";$("offersPanel").style.display="none";$("feed").style.display="flex";$("feedTitle").textContent=activeCity?"أخبار "+activeCity:"أحدث News";loadNews()});
+$("city").addEventListener("change",()=>{loadPrayer();if(activeQuery==="السعودية Weather")loadNews()});loadPrayer();loadNews();setInterval(loadNews,15*60*1000);
+
+/* Economy market dashboard: values are labelled with their provider and fetch time. */
+const marketCache={};
+const marketNames={tasi:"مؤشر تاسي",nomu:"مؤشر نمو",gold:"الذهب",oil:"Brent Crude",currency:"Currencies",gas:"Household Gas",fuel:"Fuel",electricity:"Electricity",water:"Water"};
+const marketSources={tasi:"Yahoo Finance (^TASI)؛ مصدر سوقي غير رسمي",gold:"Yahoo Finance (GC=F)؛ تحويل from الأونصة إلى الجرام والريال",oil:"Yahoo Finance (BZ=F)",currency:"Frankfurter / ECB؛ أسعار مرجعية",gas:"غازكو · أسعار تعبئة Household Gas شاملة النقل والضريبة",fuel:"أرامكو السعودية — يلزم ربط جدول الأسعار Ar Rassمي",electricity:"الشركة السعودية للكهرباء / هيئة تنظيم Water وElectricity",water:"شركة Water Al Watanية / هيئة تنظيم Water وElectricity"};
+const fmtMarket=n=>Number.isFinite(n)?new Intl.NumberFormat("ar-SA",{maximumFractionDigits:2}).format(n):"—";
+async function yahooQuote(symbol){
+ const path="/v8/finance/chart/"+encodeURIComponent(symbol)+"?range=5d&interval=1d";
+ const urls=[
+  ["Yahoo Finance", "https://query1.finance.yahoo.com"+path],
+  ["Yahoo Finance mirror", "https://query2.finance.yahoo.com"+path],
+  ["Yahoo Finance عبر وسيط بديل", "https://api.allorigins.win/raw?url="+encodeURIComponent("https://query1.finance.yahoo.com"+path)]
+ ];
+ let lastError;
+ for(const [provider,url] of urls){
+  try{
+   const r=await fetch(url,{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
+   const j=await r.json(),x=j.chart?.result?.[0];if(!x)throw Error("no quote");
+   const q=x.indicators?.quote?.[0],cl=(q?.close||[]).filter(Number.isFinite),last=cl.at(-1),prev=cl.at(-2)??x.meta?.chartPreviousClose??x.meta?.previousClose;
+   if(!Number.isFinite(last))throw Error("empty quote");
+   const item={price:last,change:last!=null&&prev?((last-prev)/prev)*100:0,history:cl,currency:x.meta?.currency||"",time:x.timestamp?.at(-1)?new Date(x.timestamp.at(-1)*1000):new Date(),source:provider+" · "+symbol,stale:false};
+   try{localStorage.setItem("saudiMarketQuote:"+symbol,JSON.stringify(item))}catch{}
+   return item;
+  }catch(e){lastError=e}
+ }
+ try{
+  const saved=JSON.parse(localStorage.getItem("saudiMarketQuote:"+symbol)||"null");
+  if(saved&&Number.isFinite(saved.price))return {...saved,stale:true,source:(saved.source||"Yahoo Finance")+" · آخر قيمة محفوظة؛ تعذر الاتصال بالمصادر"};
+ }catch{}
+ throw lastError||Error("quote unavailable "+symbol);
+}
+function paintMarketTile(key,value,change,sub){const b=document.querySelector('[data-market="'+key+'"]');if(!b)return;const v=b.querySelector(".value");v.textContent=value;v.className="value "+(change>0?"market-up":change<0?"market-down":"market-flat");b.querySelector("small").textContent=sub||marketSources[key];}
+async function loadMarket(){
+ // Market prices are read only from the repository snapshot; the browser makes no live quote requests.
+ await loadCachedMarketData();
+}
+
+async function loadCachedMarketData(){
+ try{
+  const r=await fetch("data/market.json?v="+Date.now(),{cache:"no-store"});
+  if(!r.ok)throw Error("market cache");
+  const d=await r.json();
+  const stamp=d.updated_at?new Date(d.updated_at):null;
+  const quotes=d.quotes||{};
+  const showQuote=(key,q,label,unit)=>{
+   if(!q||!Number.isFinite(Number(q.price)))return;
+   const time=q.timestamp?new Date(q.timestamp):stamp;
+   const change=Number(q.change_percent)||0;
+   marketCache[key]={price:Number(q.price),change,history:Array.isArray(q.history)?q.history:[],time,source:q.source||"مصدر خارجي",currency:q.currency||""};
+   const when=time&&!Number.isNaN(time.getTime())?time.toLocaleString("ar-SA"):"وقت المصدر غير متاح";
+   paintMarketTile(key,fmtMarket(Number(q.price))+" "+unit,change,(change>0?"+":"")+fmtMarket(change)+"% · "+when+" · "+(q.source||"مصدر خارجي")+" · محفوظ بالمستودع");
+  };
+  showQuote("tasi",quotes.tasi,"تاسي","نقطة");
+  showQuote("oil",quotes.brent,"برنت","دولار/برميل");
+  for(const [key,label] of [["tasi","تاسي"],["oil","برنت"],["gold","الذهب"]]){
+   const q=key==="gold"?quotes.gold:quotes[key==="oil"?"brent":key];
+   const hasValue=key==="gold"?Number.isFinite(Number(q?.gram24_sar_estimate)):Number.isFinite(Number(q?.price));
+   if(!hasValue)paintMarketTile(key,"Awaiting first update محفوظ",0,"سيتم جلبه بعد Close السوق وحفظه في المستودع.");
+  }
+  const gold=quotes.gold;
+  if(gold&&Number.isFinite(Number(gold.gram24_sar_estimate))){
+   const time=gold.timestamp?new Date(gold.timestamp):stamp;
+   marketCache.gold={price:Number(gold.gram24_sar_estimate),change:Number(gold.change_percent)||0,history:(gold.history||[]).map(x=>x*3.75/31.1034768),time,source:(gold.source||"Yahoo Finance")+" · تحويل تقديري",currency:"SAR/g"};
+   paintMarketTile("gold","24: "+fmtMarket(gold.gram24_sar_estimate)+" ر.س/جم",""+(Number(gold.change_percent)||0),"21: "+fmtMarket(gold.gram21_sar_estimate)+" ر.س/جم · "+(time&&!Number.isNaN(time.getTime())?time.toLocaleString("ar-SA"):"وقت المصدر غير متاح")+" · "+(gold.source||"Yahoo Finance")+" · محفوظ بالمستودع · تقديري قبل المصنعية");
+  }
+  const currencyTile=document.querySelector('[data-market="currency"]');
+  if(currencyTile){currencyTile.querySelector(".value").textContent="سعر مرجعي";currencyTile.querySelector("small").textContent="لا يوجد تحديث daysي محفوظ لهذه العملة حالياً.";}
+  for(const key of ["TASI","NOMU"]){
+   const q=d.indices?.[key];if(!q)continue;
+   const tile=document.querySelector('[data-market="'+(key==="TASI"?"tasi":"nomu")+'"]');
+   if(tile){tile.querySelector(".value").textContent=fmtMarket(q.index_value)+" نقطة";tile.querySelector("small").textContent=(q.index_change_percent>0?"+":"")+fmtMarket(q.index_change_percent)+"% · "+(q.timestamp?new Date(q.timestamp).toLocaleString("ar-SA"):"وقت المصدر غير متاح");}
+   marketCache[key==="TASI"?"tasi":"nomu"]={price:q.index_value,change:q.index_change_percent,time:q.timestamp?new Date(q.timestamp):stamp,source:"SAHMK · "+key,history:[]};
+  }
+  const gas=d.household_gas;
+  if(gas){marketCache.gas={price:gas.cylinder_11kg_sar,change:0,time:gas.effective_date?new Date(gas.effective_date):stamp,source:"غازكو · "+gas.source_url,history:[]};const tile=document.querySelector('[data-market="gas"]');if(tile){tile.querySelector(".value").textContent=fmtMarket(gas.cylinder_11kg_sar)+" SAR / 11 kg";tile.querySelector("small").textContent="5 كجم: "+fmtMarket(gas.cylinder_5kg_sar)+" ر.س · الخزان: "+fmtMarket(gas.central_tank_per_liter_sar)+" ر.س/لتر · شامل النقل والضريبة";}}
+  const root=document.getElementById("marketEquities");
+  if(root){
+   root.replaceChildren();
+   for(const market of ["TASI","NOMU"]){
+    const section=d.markets?.[market]||{};
+    const title=document.createElement("h3");title.textContent=market==="TASI"?"أسهم السوق Home — تاسي":"أسهم السوق الموازية — نمو";root.appendChild(title);
+    const directory=d.companies?.[market]||[];
+    const bySymbol=new Map();
+    for(const [category,label] of [["leaders_value","الأعلى قيمة تداول"],["leaders_volume","الأعلى حجماً"],["gainers","الأكثر ارتفاعاً"],["losers","الأكثر انخفاضاً"]]){
+     for(const stock of section[category]||[]){
+      const code=String(stock.symbol||"");if(!code)continue;
+      if(!bySymbol.has(code))bySymbol.set(code,{...stock,categories:[]});
+      bySymbol.get(code).categories.push(label);
+     }
+    }
+    for(const company of directory){const code=String(company.symbol||"");if(code&&!bySymbol.has(code))bySymbol.set(code,{symbol:code,name:company.name_ar||company.name_en||"",price:null,change_percent:null,volume:null,categories:["بقية الأسهم النشطة"]});}
+    const rows=[...bySymbol.values()];
+    const count=document.createElement("p");count.className="market-note";count.textContent="إجمالي الأسهم النشطة: "+directory.length+" · تُعرض القياديات وقوائم النشاط أولاً، ثم بقية الأسهم. السعر التفصيلي متاح حالياً للأسهم الظاهرة ضfrom قوائم السوق from SAHMK؛ بقية الرموز دليل شركات فقط ضfrom الباقة المجانية.";root.appendChild(count);
+    if(!rows.length){const empty=document.createElement("p");empty.className="market-note";empty.textContent="لا توجد بيانات أسعار محفوظة لهذا السوق بعد.";root.appendChild(empty);continue;}
+    const table=document.createElement("div");table.className="market-stock-table";
+    const head=document.createElement("div");head.className="market-stock-row market-stock-head";
+    ["الرمز والشركة","السعر","التغير","حجم التداول","التصنيف"].forEach(t=>{const x=document.createElement("span");x.textContent=t;head.appendChild(x)});table.appendChild(head);
+    rows.sort((a,b)=>(Number(b.value)||Number(b.volume)||0)-(Number(a.value)||Number(a.volume)||0));
+    for(const stock of rows){
+     const row=document.createElement("div");row.className="market-stock-row";
+     const vals=[String(stock.symbol)+" · "+(stock.name||""),stock.price==null?"—":fmtMarket(stock.price)+" ر.س",stock.change_percent==null?"—":(stock.change_percent>0?"+":"")+fmtMarket(stock.change_percent)+"%",stock.volume==null?"—":fmtMarket(stock.volume),[...new Set(stock.categories)].join("، ")];
+     vals.forEach((v,i)=>{const x=document.createElement("span");x.textContent=v;if(i===2)x.className=(Number(stock.change_percent)>0?"market-up":Number(stock.change_percent)<0?"market-down":"");row.appendChild(x)});table.appendChild(row);
+    }
+    root.appendChild(table);
+   }
+  }
+  $("marketUpdated").textContent=stamp?"آخر تحديث السوق: "+stamp.toLocaleString("ar-SA")+" · المصدر: SAHMK · نهاية التداول":"لم يتم تحديث Market data بعد.";
+ }catch(e){
+  console.warn("Cached market data unavailable",e);
+  for(const key of ["tasi","oil","gold"])paintMarketTile(key,"تعذر قراءة ملف الأسعار",0,"تحقق from اتصال الموقع؛ لن يتم جلب الأسعار مباشرة from المتصفح.");
+  $("marketUpdated").textContent="تعذر قراءة ملف data/market.json from المستودع.";
+ }
+}
+
+function getFavs(){try{return JSON.parse(localStorage.getItem("saudiMarketFavorites")||"[]").filter(x=>/^\d{4,5}$/.test(x))}catch{return []}}
+function saveFavs(a){localStorage.setItem("saudiMarketFavorites",JSON.stringify([...new Set(a)].slice(0,20)));renderFavs()}
+async function renderFavs(){const box=$("stockList"),a=getFavs();if(!a.length){box.innerHTML='<span class="market-note">لا توجد أسهم مضافة بعد.</span>';return}box.innerHTML="";for(const code of a){const el=document.createElement("div");el.className="market-stock";el.textContent=code+".SR · جارٍ التحميل";const del=document.createElement("button");del.textContent="×";del.title="حذف from المفضلة";del.onclick=()=>saveFavs(getFavs().filter(x=>x!==code));el.appendChild(del);box.appendChild(el);try{const q=await yahooQuote(code+".SR");el.firstChild.textContent=code+".SR · "+fmtMarket(q.price)+" "+q.currency+" · "+(q.change>0?"+":"")+fmtMarket(q.change)+"%";el.title="المصدر: "+q.source+" · "+q.time.toLocaleString("ar-SA")}catch{el.firstChild.textContent=code+".SR · السعر غير متاح from المصدر"}}}
+async function addStock(){const raw=$("stockSearch").value.trim();const m=raw.match(/\d{4,5}/);if(!m){$("stockResults").textContent="أدخل رمز تداول from 4 أو 5 أرقام.";return}const code=m[0];$("stockResults").textContent="جارٍ التحقق from الرمز…";try{const q=await yahooQuote(code+".SR");saveFavs([...getFavs(),code]);$("stockResults").textContent=code+".SR · "+fmtMarket(q.price)+" · تمت الإضافة";$("stockSearch").value=""}catch{$("stockResults").textContent="لم نتمكن from التحقق from السهم حالياً. لن نضيف رمزاً غير متحقق."}}
+function showMarketDetails(key){const q=marketCache[key];$("marketModalTitle").textContent=marketNames[key]||"تفاصيل السعر";$("marketModalMeta").textContent=q?.price!=null?"آخر سعر: "+fmtMarket(q.price)+" · "+(q.change>0?"+":"")+fmtMarket(q.change)+"% · "+(q.time?.toLocaleString("ar-SA")||"وقت غير متاح"):"لا تتوفر قيمة موثقة حالياً لهذا العنصر."; $("marketModalSource").textContent="المصدر: "+(q?.source||marketSources[key]||"غير محدد")+". الأسعار Ar Rassمية الثابتة لا تُعرض حتى يتوفر جدول موثق وتاريخ سريان.";const c=$("marketChart"),ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);const vals=q?.history||[];if(vals.length>1){const lo=Math.min(...vals),hi=Math.max(...vals),span=hi-lo||1;ctx.beginPath();vals.forEach((v,i)=>{const x=20+i*(c.width-40)/(vals.length-1),y=c.height-20-(v-lo)/span*(c.height-40);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.strokeStyle="#a5b77a";ctx.lineWidth=3;ctx.stroke()}else{ctx.fillStyle="#a6b09b";ctx.font="14px sans-serif";ctx.fillText("لا تتوفر بيانات تاريخية للرسم حالياً",120,95)}$("marketModal").classList.add("open")}
+$("marketRefresh").addEventListener("click",()=>loadMarket());$("stockAdd").addEventListener("click",addStock);$("stockSearch").addEventListener("keydown",e=>{if(e.key==="Enter")addStock()});$("marketClose").addEventListener("click",()=>$("marketModal").classList.remove("open"));$("marketModal").addEventListener("click",e=>{if(e.target===$("marketModal"))$("marketModal").classList.remove("open")});$("marketStrip").addEventListener("click",e=>{const tile=e.target.closest("[data-market]");if(tile)showMarketDetails(tile.dataset.market)});renderFavs();loadCachedMarketData();
+</script>
+</body></html>
