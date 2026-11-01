@@ -286,7 +286,10 @@ def category(key, fn):
  try:
   fresh=fn()
   fresh=enrich_excerpts(fresh)
-  result["categories"][key]={"items":merge(old.get("items",[]),fresh),"updated_at":result["updated_at"],"status":"ok" if fresh else "ok_empty","new_items":len(fresh)}
+  old_items=[{**item,"is_new":False} for item in old.get("items",[])]
+  old_keys={key_for_url(item) or re.sub(r"\\W+","",item.get("title","").lower()) for item in old_items}
+  fresh=[{**item,"is_new":(key_for_url(item) or re.sub(r"\\W+","",item.get("title","").lower())) not in old_keys} for item in fresh]
+  result["categories"][key]={"items":merge(old_items,fresh),"updated_at":result["updated_at"],"status":"ok" if fresh else "ok_empty","new_items":sum(1 for item in fresh if item["is_new"])}
  except Exception as e:
   errors.append(key+": "+str(e))
   result["categories"][key]={"items":old.get("items",[]),"updated_at":old.get("updated_at",""),"status":"stale" if old.get("items") else "unavailable","error":str(e)[:180]}
@@ -336,7 +339,10 @@ def refresh_city_feed(kind, code, query):
   if code=="Riyadh":
    # استبعاد صحيفة الرياض وجريدة الرياض كمصدر، لا ككلمة في عنوان الخبر.
    fresh=[item for item in fresh if not is_riyadh_newspaper(item)]
-  combined=merge(old.get("items",[]),fresh)
+  old_items=[{**item,"is_new":False} for item in old.get("items",[])]
+  old_keys={key_for_url(item) or re.sub(r"\\W+","",item.get("title","").lower()) for item in old_items}
+  fresh=[{**item,"is_new":(key_for_url(item) or re.sub(r"\\W+","",item.get("title","").lower())) not in old_keys} for item in fresh]
+  combined=merge(old_items,fresh)
   if code=="Riyadh":
    combined=[item for item in combined if not is_riyadh_newspaper(item)]
   data={"items":combined,"updated_at":result["updated_at"],"status":"ok" if fresh else "ok_empty","new_items":len(fresh)}
