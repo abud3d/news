@@ -210,6 +210,10 @@ result={"schema":2,"updated_at":datetime.now(timezone.utc).isoformat(),"categori
 errors=[]
 source_cache,source_status=fetch_source_registry()
 result["source_status"]=source_status
+for source_name,source_info in source_status.items():
+ print("SOURCE:",source_name,source_info.get("status"),source_info.get("method"),"items:",source_info.get("items",0))
+ if source_info.get("status") in ("stale","unavailable"):
+  errors.append("source "+source_name+": "+source_info.get("error","unavailable"))
 result["source_cache"]={k:merge((previous.get("source_cache") or {}).get(k,[]),v,limit=30) for k,v in source_cache.items()}
 all_editorial=[x for rows in source_cache.values() for x in rows]
 def category(key, fn):
