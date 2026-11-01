@@ -276,7 +276,7 @@ errors=[]
 fetched_news_keys=set()
 def register_fetched(rows):
  for item in rows:
-  key=key_for_url(item) or re.sub(r"\\W+","",item.get("title","").lower())
+  key=key_for_url(item) or re.sub(r"\W+","",item.get("title","").lower())
   if key: fetched_news_keys.add(key)
 source_cache,source_status=fetch_source_registry()
 result["source_status"]=source_status
