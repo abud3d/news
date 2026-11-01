@@ -57,10 +57,11 @@ footer{border-top:1px solid var(--line);margin-top:35px;padding:22px 0 30px;colo
  <div class="market-head"><div><h2>📊 مؤشرات الأسواق والأسعار</h2><p>لوحة مختصرة للأسواق والأسعار في السعودية — لا تُعرض قيمة بلا مصدر ووقت تحديث.</p></div><button class="market-action" id="marketRefresh" type="button">تحديث البيانات</button></div>
  <div class="market-strip" id="marketStrip" aria-live="polite">
   <button class="market-tile" data-market="tasi"><strong>تاسي TASI</strong><span class="value">جارٍ التحميل…</span><small>Yahoo Finance · بيانات السوق</small></button>
+   <button class="market-tile" data-market="nomu"><strong>نمو NOMU</strong><span class="value">بانتظار أول تحديث</span><small>SAHMK · بعد إغلاق التداول</small></button>
   <button class="market-tile" data-market="gold"><strong>الذهب · 24 و21</strong><span class="value">جارٍ التحميل…</span><small>عالمي — تحويل تقديري للريال</small></button>
   <button class="market-tile" data-market="oil"><strong>نفط برنت</strong><span class="value">جارٍ التحميل…</span><small>Yahoo Finance · BZ=F</small></button>
   <button class="market-tile" data-market="currency"><strong>العملات</strong><span class="value">جارٍ التحميل…</span><small>أسعار صرف مرجعية</small></button>
-  <button class="market-tile" data-market="gas"><strong>الغاز</strong><span class="value">غير متاح حالياً</span><small>يلزم مصدر تسعير محدد</small></button>
+  <button class="market-tile" data-market="gas"><strong>الغاز المنزلي</strong><span class="value">37 ر.س / 11 كجم</span><small>غازكو · شامل النقل والضريبة · ساري 1 يوليو 2026</small></button>
   <button class="market-tile" data-market="fuel"><strong>الوقود</strong><span class="value">91 · 95 · ديزل</span><small>أسعار أرامكو الرسمية — تُضاف عند التحقق</small></button>
   <button class="market-tile" data-market="electricity"><strong>الكهرباء</strong><span class="value">التعرفة الرسمية</span><small>حسب الشريحة وتاريخ السريان</small></button>
   <button class="market-tile" data-market="water"><strong>المياه</strong><span class="value">التعرفة الرسمية</span><small>حسب الاستهلاك وتاريخ السريان</small></button>
@@ -235,11 +236,60 @@ async function loadMarket(){
  await Promise.allSettled(jobs.map(async([k,fn])=>{try{await fn()}catch(e){paintMarketTile(k,"تعذر جلب البيانات",0,marketSources[k]+" · لا نعرض سعراً غير متحقق")}}));
  $("marketUpdated").textContent="آخر محاولة تحديث: "+stamp.toLocaleString("ar-SA")+" · تُعرض أوقات المصدر عند توفرها.";
 }
+
+async function loadCachedMarketData(){
+ try{
+  const r=await fetch("data/market.json?v="+Date.now(),{cache:"no-store"});
+  if(!r.ok)throw Error("market cache");
+  const d=await r.json();
+  const stamp=d.updated_at?new Date(d.updated_at):null;
+  for(const key of ["TASI","NOMU"]){
+   const q=d.indices?.[key];if(!q)continue;
+   const tile=document.querySelector('[data-market="'+(key==="TASI"?"tasi":"nomu")+'"]');
+   if(tile){tile.querySelector(".value").textContent=fmtMarket(q.index_value)+" نقطة";tile.querySelector("small").textContent=(q.index_change_percent>0?"+":"")+fmtMarket(q.index_change_percent)+"% · "+(q.timestamp?new Date(q.timestamp).toLocaleString("ar-SA"):"وقت المصدر غير متاح");}
+   marketCache[key==="TASI"?"tasi":"nomu"]={price:q.index_value,change:q.index_change_percent,time:q.timestamp?new Date(q.timestamp):stamp,source:"SAHMK · "+key,history:[]};
+  }
+  const gas=d.household_gas;
+  if(gas){const tile=document.querySelector('[data-market="gas"]');if(tile){tile.querySelector(".value").textContent=fmtMarket(gas.cylinder_11kg_sar)+" ر.س / 11 كجم";tile.querySelector("small").textContent="5 كجم: "+fmtMarket(gas.cylinder_5kg_sar)+" ر.س · الخزان: "+fmtMarket(gas.central_tank_per_liter_sar)+" ر.س/لتر · شامل النقل والضريبة";}}
+  const root=document.getElementById("marketEquities");
+  if(root){
+   root.replaceChildren();
+   for(const market of ["TASI","NOMU"]){
+    const section=d.markets?.[market]||{};
+    const title=document.createElement("h3");title.textContent=market==="TASI"?"أسهم السوق الرئيسية — تاسي":"أسهم السوق الموازية — نمو";root.appendChild(title);
+    const directory=d.companies?.[market]||[];
+    const bySymbol=new Map();
+    for(const [category,label] of [["leaders_value","الأعلى قيمة تداول"],["leaders_volume","الأعلى حجماً"],["gainers","الأكثر ارتفاعاً"],["losers","الأكثر انخفاضاً"]]){
+     for(const stock of section[category]||[]){
+      const code=String(stock.symbol||"");if(!code)continue;
+      if(!bySymbol.has(code))bySymbol.set(code,{...stock,categories:[]});
+      bySymbol.get(code).categories.push(label);
+     }
+    }
+    const rows=[...bySymbol.values()];
+    const count=document.createElement("p");count.className="market-note";count.textContent="الشركات النشطة المصنفة كأسهم: "+directory.length+" · أسعار وقوائم أبرز التداول من SAHMK.";root.appendChild(count);
+    if(!rows.length){const empty=document.createElement("p");empty.className="market-note";empty.textContent="لا توجد بيانات أسعار محفوظة لهذا السوق بعد.";root.appendChild(empty);continue;}
+    const table=document.createElement("div");table.className="market-stock-table";
+    const head=document.createElement("div");head.className="market-stock-row market-stock-head";
+    ["الرمز والشركة","السعر","التغير","حجم التداول","التصنيف"].forEach(t=>{const x=document.createElement("span");x.textContent=t;head.appendChild(x)});table.appendChild(head);
+    rows.sort((a,b)=>(Number(b.value)||Number(b.volume)||0)-(Number(a.value)||Number(a.volume)||0));
+    for(const stock of rows){
+     const row=document.createElement("div");row.className="market-stock-row";
+     const vals=[String(stock.symbol)+" · "+(stock.name||""),stock.price==null?"—":fmtMarket(stock.price)+" ر.س",stock.change_percent==null?"—":(stock.change_percent>0?"+":"")+fmtMarket(stock.change_percent)+"%",stock.volume==null?"—":fmtMarket(stock.volume),[...new Set(stock.categories)].join("، ")];
+     vals.forEach((v,i)=>{const x=document.createElement("span");x.textContent=v;if(i===2)x.className=(Number(stock.change_percent)>0?"market-up":Number(stock.change_percent)<0?"market-down":"");row.appendChild(x)});table.appendChild(row);
+    }
+    root.appendChild(table);
+   }
+  }
+  $("marketUpdated").textContent=stamp?"آخر تحديث السوق: "+stamp.toLocaleString("ar-SA")+" · المصدر: SAHMK · نهاية التداول":"لم يتم تحديث بيانات السوق بعد.";
+ }catch(e){console.warn("Cached market data unavailable",e);}
+}
+
 function getFavs(){try{return JSON.parse(localStorage.getItem("saudiMarketFavorites")||"[]").filter(x=>/^\d{4,5}$/.test(x))}catch{return []}}
 function saveFavs(a){localStorage.setItem("saudiMarketFavorites",JSON.stringify([...new Set(a)].slice(0,20)));renderFavs()}
 async function renderFavs(){const box=$("stockList"),a=getFavs();if(!a.length){box.innerHTML='<span class="market-note">لا توجد أسهم مضافة بعد.</span>';return}box.innerHTML="";for(const code of a){const el=document.createElement("div");el.className="market-stock";el.textContent=code+".SR · جارٍ التحميل";const del=document.createElement("button");del.textContent="×";del.title="حذف من المفضلة";del.onclick=()=>saveFavs(getFavs().filter(x=>x!==code));el.appendChild(del);box.appendChild(el);try{const q=await yahooQuote(code+".SR");el.firstChild.textContent=code+".SR · "+fmtMarket(q.price)+" "+q.currency+" · "+(q.change>0?"+":"")+fmtMarket(q.change)+"%";el.title="المصدر: "+q.source+" · "+q.time.toLocaleString("ar-SA")}catch{el.firstChild.textContent=code+".SR · السعر غير متاح من المصدر"}}}
 async function addStock(){const raw=$("stockSearch").value.trim();const m=raw.match(/\d{4,5}/);if(!m){$("stockResults").textContent="أدخل رمز تداول من 4 أو 5 أرقام.";return}const code=m[0];$("stockResults").textContent="جارٍ التحقق من الرمز…";try{const q=await yahooQuote(code+".SR");saveFavs([...getFavs(),code]);$("stockResults").textContent=code+".SR · "+fmtMarket(q.price)+" · تمت الإضافة";$("stockSearch").value=""}catch{$("stockResults").textContent="لم نتمكن من التحقق من السهم حالياً. لن نضيف رمزاً غير متحقق."}}
 function showMarketDetails(key){const q=marketCache[key];$("marketModalTitle").textContent=marketNames[key]||"تفاصيل السعر";$("marketModalMeta").textContent=q?.price!=null?"آخر سعر: "+fmtMarket(q.price)+" · "+(q.change>0?"+":"")+fmtMarket(q.change)+"% · "+(q.time?.toLocaleString("ar-SA")||"وقت غير متاح"):"لا تتوفر قيمة موثقة حالياً لهذا العنصر."; $("marketModalSource").textContent="المصدر: "+(q?.source||marketSources[key]||"غير محدد")+". الأسعار الرسمية الثابتة لا تُعرض حتى يتوفر جدول موثق وتاريخ سريان.";const c=$("marketChart"),ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);const vals=q?.history||[];if(vals.length>1){const lo=Math.min(...vals),hi=Math.max(...vals),span=hi-lo||1;ctx.beginPath();vals.forEach((v,i)=>{const x=20+i*(c.width-40)/(vals.length-1),y=c.height-20-(v-lo)/span*(c.height-40);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.strokeStyle="#a5b77a";ctx.lineWidth=3;ctx.stroke()}else{ctx.fillStyle="#a6b09b";ctx.font="14px sans-serif";ctx.fillText("لا تتوفر بيانات تاريخية للرسم حالياً",120,95)}$("marketModal").classList.add("open")}
-$("marketRefresh").addEventListener("click",loadMarket);$("stockAdd").addEventListener("click",addStock);$("stockSearch").addEventListener("keydown",e=>{if(e.key==="Enter")addStock()});$("marketClose").addEventListener("click",()=>$("marketModal").classList.remove("open"));$("marketModal").addEventListener("click",e=>{if(e.target===$("marketModal"))$("marketModal").classList.remove("open")});$("marketStrip").addEventListener("click",e=>{const tile=e.target.closest("[data-market]");if(tile)showMarketDetails(tile.dataset.market)});renderFavs();loadMarket();setInterval(loadMarket,5*60*1000);
+$("marketRefresh").addEventListener("click",()=>{loadMarket();loadCachedMarketData()});$("stockAdd").addEventListener("click",addStock);$("stockSearch").addEventListener("keydown",e=>{if(e.key==="Enter")addStock()});$("marketClose").addEventListener("click",()=>$("marketModal").classList.remove("open"));$("marketModal").addEventListener("click",e=>{if(e.target===$("marketModal"))$("marketModal").classList.remove("open")});$("marketStrip").addEventListener("click",e=>{const tile=e.target.closest("[data-market]");if(tile)showMarketDetails(tile.dataset.market)});renderFavs();loadMarket();loadCachedMarketData();
 </script>
 </body></html>
