@@ -33,7 +33,9 @@ CITIES = {
  "Tabuk":("تبوك",28.3838,36.5550),"Taif":("الطائف",21.2703,40.4158),
  "Jazan":("جازان",16.8892,42.5511),"Najran":("نجران",17.5650,44.2289),
  "AlBaha":("الباحة",20.0129,41.4677),"Sakaka":("سكاكا",29.9697,40.2064),
- "Arar":("عرعر",30.9753,41.0381), "AlKhobar":("الخبر",26.2172,50.1971)
+ "Arar":("عرعر",30.9753,41.0381), "AlKhobar":("الخبر",26.2172,50.1971),"AlAhsa":("الأحساء",25.3830,49.5860),
+ "Saihat":("سيهات",26.4850,50.0400),"ArRass":("الرس",25.8690,43.4970),
+ "Majmaah":("المجمعة",25.9000,45.3500)
 }
 CITY_NEWS_QUERIES = {
  "Riyadh":'"الرياض" السعودية أخبار',
@@ -52,6 +54,23 @@ CITY_NEWS_QUERIES = {
  "Sakaka":'"سكاكا" OR "الجوف" السعودية أخبار',
  "Arar":'"عرعر" OR "الحدود الشمالية" السعودية أخبار',
  "AlKhobar":'"الخبر" OR "الظهران" السعودية أخبار',
+ "AlAhsa":'"الأحساء" OR "الهفوف" السعودية أخبار',
+ "Saihat":'"سيهات" السعودية أخبار',
+ "ArRass":'"الرس" السعودية أخبار',
+ "Majmaah":'"المجمعة" السعودية أخبار',
+}
+CITY_CLUBS = {
+ "Riyadh":["الهلال","النصر","الشباب","الرياض","الدرعية"],
+ "Jeddah":["الاتحاد","الأهلي"],
+ "Dammam":["الاتفاق"],
+ "AlKhobar":["القادسية"],
+ "Buraydah":["التعاون"],
+ "Abha":["أبها"],
+ "Tabuk":["نيوم"],
+ "AlAhsa":["الفتح"],
+ "Saihat":["الخليج"],
+ "ArRass":["الحزم","الخلود"],
+ "Majmaah":["الفيحاء","الفيصلي"],
 }
 UA = "SaudiAI-NewsBot/1.0 (+https://abud3d.github.io/news/)"
 
@@ -250,14 +269,28 @@ def refresh_weather(code, city):
   fallback=old or {"title":f"طقس {city[0]}: غير متاح مؤقتاً","url":"https://open-meteo.com/","source":"Open-Meteo","date":"","description":"تعذر جلب حالة الطقس لهذه المدينة في آخر دورة تحديث.","status":"unavailable"}
   return ("weather",code,fallback,str(e))
 
+def is_riyadh_newspaper(item):
+ source=clean(item.get("source","")).replace(" ","").lower()
+ url=urllib.parse.unquote(item.get("url","")).lower()
+ return ("صحيفةالرياض" in source or "جريدةالرياض" in source or
+         "alriyadh.com" in url)
+
 def refresh_city_feed(kind, code, query):
  old=previous.get(kind,{}).get(code,{})
  try:
+  # أخبار المدينة العامة، ثم أخبار أنديتها المرتبطة بالمدينة في الموجز نفسه.
   fresh=editorial_query(query)
+  clubs=CITY_CLUBS.get(code,[])
+  if clubs:
+   club_query=" OR ".join('"'+club+'"' for club in clubs)
+   fresh+=editorial_query("("+club_query+") (نادي OR مباراة OR دوري OR فريق OR رياضة)")
   if code=="Riyadh":
-   # استبعاد صحيفة الرياض كمصدر فقط، دون استبعاد كلمة الرياض من عناوين الأخبار.
-   fresh=[item for item in fresh if "صحيفة الرياض" not in str(item.get("source",""))]
-  data={"items":merge(old.get("items",[]),fresh),"updated_at":result["updated_at"],"status":"ok" if fresh else "ok_empty","new_items":len(fresh)}
+   # استبعاد صحيفة الرياض وجريدة الرياض كمصدر، لا ككلمة في عنوان الخبر.
+   fresh=[item for item in fresh if not is_riyadh_newspaper(item)]
+  combined=merge(old.get("items",[]),fresh)
+  if code=="Riyadh":
+   combined=[item for item in combined if not is_riyadh_newspaper(item)]
+  data={"items":combined,"updated_at":result["updated_at"],"status":"ok" if fresh else "ok_empty","new_items":len(fresh)}
   return (kind,code,data,None)
  except Exception as e:
   data={"items":old.get("items",[]),"updated_at":old.get("updated_at",""),"status":"stale" if old.get("items") else "unavailable","error":str(e)[:180]}
