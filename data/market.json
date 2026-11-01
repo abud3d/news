@@ -1,0 +1,34 @@
+{
+  "provider": "SAHMK",
+  "source_url": "https://www.sahmk.sa/developers/docs/stocks",
+  "timezone": "Asia/Riyadh",
+  "updated_at": null,
+  "indices": {},
+  "markets": {
+    "TASI": {
+      "leaders_value": [],
+      "leaders_volume": [],
+      "gainers": [],
+      "losers": []
+    },
+    "NOMU": {
+      "leaders_value": [],
+      "leaders_volume": [],
+      "gainers": [],
+      "losers": []
+    }
+  },
+  "companies": {
+    "TASI": [],
+    "NOMU": []
+  },
+  "household_gas": {
+    "cylinder_11kg_sar": 37,
+    "cylinder_5kg_sar": 16.82,
+    "central_tank_per_liter_sar": 1.69,
+    "effective_date": "2026-07-01",
+    "includes_vat_and_transport": true,
+    "source": "GASCO",
+    "source_url": "https://gasco.com.sa/"
+  }
+}
