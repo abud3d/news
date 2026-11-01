@@ -273,6 +273,11 @@ try:
 except Exception: previous={"categories":{},"weather":{}}
 result={"schema":2,"updated_at":datetime.now(timezone.utc).isoformat(),"categories":{},"weather":{},"city_news":{},"weather_news":{},"source_status":{},"source_cache":{}}
 errors=[]
+fetched_news_keys=set()
+def register_fetched(rows):
+ for item in rows:
+  key=key_for_url(item) or re.sub(r"\\W+","",item.get("title","").lower())
+  if key: fetched_news_keys.add(key)
 source_cache,source_status=fetch_source_registry()
 result["source_status"]=source_status
 for source_name,source_info in source_status.items():
@@ -286,6 +291,7 @@ def category(key, fn):
  try:
   fresh=fn()
   fresh=enrich_excerpts(fresh)
+  register_fetched(fresh)
   old_items=[{**item,"is_new":False} for item in old.get("items",[])]
   old_keys={key_for_url(item) or re.sub(r"\\W+","",item.get("title","").lower()) for item in old_items}
   fresh=[{**item,"is_new":(key_for_url(item) or re.sub(r"\\W+","",item.get("title","").lower())) not in old_keys} for item in fresh]
@@ -336,6 +342,7 @@ def refresh_city_feed(kind, code, query):
   if clubs:
    club_query=" OR ".join('"'+club+'"' for club in clubs)
    fresh+=editorial_query("("+club_query+") (نادي OR مباراة OR دوري OR فريق OR رياضة)")
+  register_fetched(fresh)
   if code=="Riyadh":
    # استبعاد صحيفة الرياض وجريدة الرياض كمصدر، لا ككلمة في عنوان الخبر.
    fresh=[item for item in fresh if not is_riyadh_newspaper(item)]
@@ -373,6 +380,7 @@ with ThreadPoolExecutor(max_workers=5) as pool:
   else:
    result[kind][code]=data
    if error: errors.append(kind+" "+code+": "+str(error))
+result["fetched_news_count"]=len(fetched_news_keys)
 result["errors"]=errors
 with open(OUT,"w",encoding="utf-8") as f: json.dump(result,f,ensure_ascii=False,indent=2)
 print("Updated",len(result["categories"]),"feeds and",len(result["weather"]),"weather locations; errors:",len(errors))
