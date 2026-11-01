@@ -156,7 +156,7 @@ def fetch_source_registry():
     rows=fetch_google("site:"+cfg["domain"]+" أخبار السعودية")
   else:
    rows=fetch_google("site:"+cfg["domain"]+" أخبار السعودية")
-  rows=[x for x in rows if urllib.parse.urlparse(x.get("url","")).netloc.lower().endswith(cfg["domain"])]
+  # بحث Google News مقيد بـ site:domain؛ روابط RSS قد تكون روابط تحويل news.google.com وليست نطاق الناشر مباشرة.
   for x in rows: x["source"]=name
   return name,rows,{"status":"ok" if rows else "ok_empty","method":method,"items":len(rows),"checked_at":datetime.now(timezone.utc).isoformat()}
  with ThreadPoolExecutor(max_workers=8) as pool:
