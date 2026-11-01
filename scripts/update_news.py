@@ -292,7 +292,7 @@ def category(key, fn):
   result["categories"][key]={"items":merge(old_items,fresh),"updated_at":result["updated_at"],"status":"ok" if fresh else "ok_empty","new_items":sum(1 for item in fresh if item["is_new"])}
  except Exception as e:
   errors.append(key+": "+str(e))
-  result["categories"][key]={"items":old.get("items",[]),"updated_at":old.get("updated_at",""),"status":"stale" if old.get("items") else "unavailable","error":str(e)[:180]}
+  result["categories"][key]={"items":[{**item,"is_new":False} for item in old.get("items",[])],"updated_at":old.get("updated_at",""),"status":"stale" if old.get("items") else "unavailable","error":str(e)[:180]}
 
 for key,q in QUERIES.items():
  if key not in ("SPORT_KSA","SPORT_AFC"):
@@ -348,7 +348,7 @@ def refresh_city_feed(kind, code, query):
   data={"items":combined,"updated_at":result["updated_at"],"status":"ok" if fresh else "ok_empty","new_items":len(fresh)}
   return (kind,code,data,None)
  except Exception as e:
-  data={"items":old.get("items",[]),"updated_at":old.get("updated_at",""),"status":"stale" if old.get("items") else "unavailable","error":str(e)[:180]}
+  data={"items":[{**item,"is_new":False} for item in old.get("items",[])],"updated_at":old.get("updated_at",""),"status":"stale" if old.get("items") else "unavailable","error":str(e)[:180]}
   return (kind,code,data,str(e))
 
 tasks=[]
