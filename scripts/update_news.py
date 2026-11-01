@@ -206,13 +206,12 @@ def editorial_query(q):
  return fetch_google(q)
 
 TECH_SOURCES = {
- "Android Authority":"https://www.androidauthority.com/feed/",
  "GSMArena":"https://www.gsmarena.com/rss-news-reviews.php3",
  "NASA":"https://www.nasa.gov/feed/",
  "Ars Technica":"https://feeds.arstechnica.com/arstechnica/index",
  "WIRED":"https://www.wired.com/feed/rss",
 }
-TECH_DOMAINS=["androidauthority.com","gsmarena.com","sciencedaily.com","arstechnica.com","wired.com","engadget.com","cnet.com","9to5google.com"]
+TECH_DOMAINS=["gsmarena.com","sciencedaily.com","arstechnica.com","wired.com","engadget.com","cnet.com","9to5google.com"]
 
 def fetch_technology():
  rows=[]
