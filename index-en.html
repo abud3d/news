@@ -55,26 +55,26 @@ footer{border-top:1px solid var(--line);margin-top:35px;padding:22px 0 30px;colo
 </select></label>
 </div></div></header>
 <main class="wrap">
-<section class="prayer"><div><div class="prayerlabel">الصلاة القادمة · <span id="prayerCity">Riyadh</span></div><strong id="nextPrayer">Loading prayer times…</strong><div class="sub" id="prayerTime">According to the Umm Al-Qura calendar</div></div><div class="countdown" id="remaining">--:--:--</div></section>
+<section class="prayer"><div><div class="prayerlabel">Next prayer · <span id="prayerCity">Riyadh</span></div><strong id="nextPrayer">Loading prayer times…</strong><div class="sub" id="prayerTime">According to the Umm Al-Qura calendar</div></div><div class="countdown" id="remaining">--:--:--</div></section>
 <div class="section-head"><h2>Main Sections</h2><p>Choose a topic to follow</p></div>
 <nav class="chips" id="categories">
 <button class="chip active" data-q="Saudi Arabia news">Home</button><button class="chip" data-q="Saudi Arabia artificial intelligence">Artificial Intelligence</button><button class="chip" data-q="Saudi Arabia technology">Technology</button><button class="chip" data-economy="1">Economy</button><button class="chip" data-q="Saudi Arabia startups">Startups</button><button class="chip" data-q="السعودية سياحة">Tourism</button><button class="chip" data-q="السعودية تعليم">Education</button><button class="chip" data-q="وظائف السعودية وظائف شاغرة توظيف">Jobs</button><button class="chip" data-q="السعودية صحة">Health</button><button class="chip" data-q="السعودية طقس">Weather</button><button class="chip" data-q="العالم أخبار">World</button><button class="chip" data-q="عربي أخبار">Arab News</button><button class="chip" data-q="Hacker News technology startups">Hacker News</button><button class="chip" data-cyber="1">Cybersecurity</button><button class="chip" data-sport="1">⚽ Sports</button><button class="chip" data-offers="1">🔥 Deals & Discounts</button>
 </nav>
 
 <section id="marketPanel" class="market-panel" hidden aria-label="Markets & Prices">
- <div class="market-head"><div><h2>📊 مؤشرات الأسواق والأسعار</h2><p>A snapshot of Saudi markets and prices. Values are shown only with a source and update time.</p></div><button class="market-action" id="marketRefresh" type="button">Refresh Data</button></div>
+ <div class="market-head"><div><h2>📊 Markets & Prices</h2><p>A snapshot of Saudi markets and prices. Values are shown only with a source and update time.</p></div><button class="market-action" id="marketRefresh" type="button">Refresh Data</button></div>
  <div class="market-strip" id="marketStrip" aria-live="polite">
-  <button class="market-tile" data-market="tasi"><strong>TASI Index</strong><span class="value">Loading…</span><small>Yahoo Finance · بيانات السوق</small></button>
-   <button class="market-tile" data-market="nomu"><strong>NOMU Index</strong><span class="value">Awaiting first update</span><small>SAHMK · بعد إغلاق التداول</small></button>
+  <button class="market-tile" data-market="tasi"><strong>TASI Index</strong><span class="value">Loading…</span><small>Yahoo Finance · Market data</small></button>
+   <button class="market-tile" data-market="nomu"><strong>NOMU Index</strong><span class="value">Awaiting first update</span><small>SAHMK · After market close</small></button>
   <button class="market-tile" data-market="gold"><strong>Gold · 24K & 21K</strong><span class="value">Loading…</span><small>Global price · estimated SAR conversion</small></button>
   <button class="market-tile" data-market="oil"><strong>Brent Crude</strong><span class="value">Loading…</span><small>Yahoo Finance · BZ=F</small></button>
   <button class="market-tile" data-market="currency"><strong>Currencies</strong><span class="value">Loading…</span><small>Reference exchange rates</small></button>
-  <button class="market-tile" data-market="gas"><strong>Household Gas</strong><span class="value">37 ر.س / 11 كجم</span><small>Gasco · Includes delivery and VAT · Effective 1 July 2026</small></button>
-  <button class="market-tile" data-market="fuel"><strong>Fuel</strong><span class="value">91 · 95 · ديزل</span><small>Official Aramco prices — added after verification</small></button>
+  <button class="market-tile" data-market="gas"><strong>Household Gas</strong><span class="value">SAR 37 / 11 kg</span><small>Gasco · Includes delivery and VAT · Effective 1 July 2026</small></button>
+  <button class="market-tile" data-market="fuel"><strong>Fuel</strong><span class="value">91 · 95 · Diesel</span><small>Official Aramco prices — added after verification</small></button>
   <button class="market-tile" data-market="electricity"><strong>Electricity</strong><span class="value">Official tariff</span><small>By tier and effective date</small></button>
   <button class="market-tile" data-market="water"><strong>Water</strong><span class="value">Official tariff</span><small>By consumption and effective date</small></button>
  </div>
- <div class="market-favs"><h3>⭐ أسهمي المفضلة</h3><div class="market-search"><input id="stockSearch" type="search" placeholder="Search by company name or Tadawul symbol (e.g. 2222)" aria-label="Search Saudi stocks"><button id="stockAdd" type="button">Add Stock</button></div><div id="stockResults" class="market-list"></div><div id="stockList" class="market-list"><span class="market-note">Add stocks to see them here. Your list is saved in this browser without an account.</span></div></div>
+ <div class="market-favs"><h3>⭐ My Watchlist</h3><div class="market-search"><input id="stockSearch" type="search" placeholder="Search by company name or Tadawul symbol (e.g. 2222)" aria-label="Search Saudi stocks"><button id="stockAdd" type="button">Add Stock</button></div><div id="stockResults" class="market-list"></div><div id="stockList" class="market-list"><span class="market-note">Add stocks to see them here. Your list is saved in this browser without an account.</span></div></div>
  <p class="market-note" id="marketUpdated">Last update: No data retrieved yet.</p>
 </section>
 <div class="market-modal" id="marketModal" role="dialog" aria-modal="true" aria-labelledby="marketModalTitle"><div class="market-dialog"><div class="market-dialog-head"><h3 id="marketModalTitle">Index Details</h3><button class="market-close" id="marketClose" aria-label="Close">×</button></div><p id="marketModalMeta"></p><canvas id="marketChart" width="560" height="180"></canvas><p id="marketModalSource"></p></div></div>
@@ -83,14 +83,14 @@ footer{border-top:1px solid var(--line);margin-top:35px;padding:22px 0 30px;colo
 <button class="chip active" data-city="">All Saudi Arabia</button><button class="chip" data-city="Riyadh">Riyadh</button><button class="chip" data-city="Qassim">Qassim</button><button class="chip" data-city="Hail">Hail</button><button class="chip" data-city="Makkah">Makkah</button><button class="chip" data-city="Madinah">Madinah</button><button class="chip" data-city="Jeddah">Jeddah</button><button class="chip" data-city="Dammam">Dammam</button><button class="chip" data-city="Al Khobar">Al Khobar</button><button class="chip" data-city="Abha">Abha</button><button class="chip" data-city="Tabuk">Tabuk</button><button class="chip" data-city="Buraydah">Buraydah</button><button class="chip" data-city="Taif">Taif</button><button class="chip" data-city="Jazan">Jazan</button><button class="chip" data-city="Najran">Najran</button><button class="chip" data-city="Al Baha">Al Baha</button><button class="chip" data-city="Sakaka">Sakaka</button><button class="chip" data-city="Arar">Arar</button>
 </nav>
 <section id="sportsPanel" class="card" style="display:none;margin:16px 0">
-<div class="section-head"><h2>⚽ الرياضة السعودية والآسيوية</h2><p>Scores, fixtures and team standings</p></div>
+<div class="section-head"><h2>⚽ Saudi & Asian Sports</h2><p>Scores, fixtures and team standings</p></div>
 <div class="chips" id="sportLeagues"><button class="chip active" data-league="ksa.1">Saudi Pro League</button><button class="chip" data-league="afc.champions">AFC Champions League Elite</button></div>
 <div class="chips" id="sportViews"><button class="chip active" data-view="news">News</button><button class="chip" data-view="table">League Table</button><button class="chip" data-view="past">Previous Matches</button><button class="chip" data-view="upcoming">Upcoming Matches</button></div>
 <div id="sportsContent" class="feed"><div class="empty">Loading sports data…</div></div>
 <div class="meta" style="margin-top:10px">Source: ESPN · Some competition data may be delayed or unavailable.</div>
 </section>
 <section id="offersPanel" class="card" style="display:none;margin:16px 0">
-<div class="section-head"><h2>🔥 العروض والتخفيضات</h2><p>Latest store posts and circulars</p></div>
+<div class="section-head"><h2>🔥 Deals & Discounts</h2><p>Latest store posts and circulars</p></div>
 <div class="section-head"><h3>Official Deals</h3></div>
 <div class="official-offer-links">
 <a href="https://www.amazon.sa/gp/goldbox" target="_blank" rel="noopener">Amazon Saudi Arabia</a>
@@ -111,7 +111,7 @@ footer{border-top:1px solid var(--line);margin-top:35px;padding:22px 0 30px;colo
 <div class="card"><h3>Update Status</h3><div class="status"><span class="dot"></span><span id="feedStatus">News refreshes automatically every 15 minutes</span></div><p style="margin-top:8px">Displayed news links lead to external sources; availability may vary by publisher.</p></div>
 </aside></div>
 </main>
-<footer><div class="wrap">ذكاء السعودية Saudi AI · النسخة التقريبية 1.1.0 · Talal @ 2026 · <a href="https://abud3d.github.io/welcome/" target="_blank" rel="noopener">My GitHub profile</a> · تُعرض الأخبار باسم الناشر الأصلي مع رابط الخبر. تُستخدم خدمة RSS لجلب العناوين فقط. مواقيت الصلاة من خدمة AlAdhan.</div></footer>
+<footer><div class="wrap">Saudi AI · Preview version 1.1.0 · Talal @ 2026 · <a href="https://abud3d.github.io/welcome/" target="_blank" rel="noopener">My GitHub profile</a> · News is attributed to the original publisher with a link. RSS is used to retrieve headlines only. Prayer times are provided by AlAdhan.</div></footer>
 <script>
 const cityNames={Riyadh:"Riyadh",Buraydah:"Buraydah · Qassim",Hail:"Hail",Jeddah:"Jeddah",Makkah:"Makkah",Madinah:"Madinah",Dammam:"Dammam",Abha:"Abha",Tabuk:"Tabuk",Taif:"Taif",Jazan:"Jazan",Najran:"Najran",AlBaha:"Al Baha",Sakaka:"Sakaka",Arar:"Arar",AlKhobar:"Al Khobar",AlAhsa:"Al Ahsa",Saihat:"Saihat",ArRass:"Ar Rass",Majmaah:"Al Majma'ah"};
 const cityCodes={"Riyadh":"Riyadh","Qassim":"Buraydah","Buraydah":"Buraydah","Hail":"Hail","Makkah":"Makkah","Makkah":"Makkah","Madinah":"Madinah","Jeddah":"Jeddah","Dammam":"Dammam","Al Khobar":"AlKhobar","Al Ahsa":"AlAhsa","الهفوف":"AlAhsa","Saihat":"Saihat","Ar Rass":"ArRass","Al Majma'ah":"Majmaah","Abha":"Abha","عسير":"Abha","Tabuk":"Tabuk","Taif":"Taif","Jazan":"Jazan","Najran":"Najran","Al Baha":"AlBaha","Sakaka":"Sakaka","الجوف":"Sakaka","Arar":"Arar","الحدود الشمالية":"Arar"};
@@ -162,7 +162,7 @@ async function loadOffers(){
   if(!items.length)throw Error("لا توجد منشورات متاحة حالياً");
   box.innerHTML=items.map(a=>'<li><a href="'+esc(a.url)+'" target="_blank" rel="noopener">'+esc(a.title)+'</a><span class="post-meta">'+esc(a.source||"SnapFlyer")+'</span></li>').join("");
   cachedOffersUpdatedAt=data.updated_at||null;setUpdateLabel("offersUpdated",cachedOffersUpdatedAt,"آخر تحديث ");
- }catch(err){box.innerHTML='<li class="empty">تعذر جلب المنشورات الآن. أعد المحاولة لاحقاً.</li>';$("offersUpdated").textContent="تعذر التحديث"}
+ }catch(err){box.innerHTML='<li class="empty">Unable to retrieve posts now. Please try again later.</li>';$("offersUpdated").textContent="تعذر التحديث"}
 }
 async function loadNews(){
  visibleCount=10;$("loadMore").style.display="none";
@@ -178,24 +178,24 @@ async function loadNews(){
   render();
   setUpdateLabel("updated",cache.updated_at,"Last repository update ");
   const stale=cache.categories?.[activeQuery]?.status==="stale";
-  const sourceStates=Object.values(cache.source_status||{});const sourceOk=sourceStates.filter(x=>x.status==="ok"||x.status==="ok_empty").length;const sourceTotal=sourceStates.length;const sourceHealth=sourceTotal?" · المصادر المفحوصة "+sourceOk+"/"+sourceTotal:"";$("feedStatus").textContent=activeCity?(cache.city_news?.[cityCodes[activeCity]]?.status==="stale"?"تعذر تحديث أخبار المنطقة؛ نعرض آخر نسخة محفوظة.":"أخبار المناطق من المصادر الصحفية المحددة"):(stale?"تعذر تحديث هذا القسم؛ نعرض آخر نسخة محفوظة.":"تحديث الموجز آلياً كل 15 دقيقة"+sourceHealth);
+  const sourceStates=Object.values(cache.source_status||{});const sourceOk=sourceStates.filter(x=>x.status==="ok"||x.status==="ok_empty").length;const sourceTotal=sourceStates.length;const sourceHealth=sourceTotal?" · sources checked "+sourceOk+"/"+sourceTotal:"";$("feedStatus").textContent=activeCity?(cache.city_news?.[cityCodes[activeCity]]?.status==="stale"?"Unable to refresh local news; showing the last saved version.":"Regional news from selected news sources"):(stale?"Unable to refresh this section; showing the last saved version.":"Briefing refreshes automatically every 15 minutes"+sourceHealth);
  }catch(e){
-  if(articles.length){render();$("feedStatus").textContent="تعذر تحديث النسخة؛ نعرض آخر أخبار محمّلة."}
-  else $("feed").innerHTML='<div class="empty">لم تصل بيانات هذا القسم بعد. سيظهر المحتوى بعد أول تحديث ناجح للمستودع.</div>';
-  setUpdateLabel("updated",cachedNews?.updated_at,"Last repository update ");if(!cachedNews)$("updated").textContent="بانتظار أول تشغيل";
+  if(articles.length){render();$("feedStatus").textContent="Unable to refresh; showing the latest loaded stories."}
+  else $("feed").innerHTML='<div class="empty">No data has arrived for this section yet. Content will appear after the first successful repository update.</div>';
+  setUpdateLabel("updated",cachedNews?.updated_at,"Last repository update ");if(!cachedNews)$("updated").textContent="Waiting for the first run";
  }
 }
 
 async function loadSports(){
- const box=$("sportsContent");box.innerHTML='<div class="empty">جارٍ تحميل البيانات الرياضية…</div>';
+ const box=$("sportsContent");box.innerHTML='<div class="empty">Loading sports data…</div>';
  try{
   if(sportView==="news"){
    await readNewsCache();
    const query=currentLeague==="ksa.1"
-    ? "دوري روشن السعودي الهلال النصر الاتحاد الأهلي الشباب أخبار"
-    : "دوري أبطال آسيا للنخبة الهلال الأهلي الاتحاد أخبار";
+    ? "Saudi Pro League news: Al Hilal, Al Nassr, Al Ittihad, Al Ahli and Al Shabab"
+    : "AFC Champions League Elite news: Al Hilal, Al Ahli and Al Ittihad";
    const items=cachedCategory(currentLeague==="ksa.1"?"SPORT_KSA":"SPORT_AFC");
-   if(!items.length){box.innerHTML='<div class="empty">لا توجد أخبار رياضية متاحة حالياً لهذه المسابقة.</div>';return}
+   if(!items.length){box.innerHTML='<div class="empty">No sports news is currently available for this competition.</div>';return}
    box.innerHTML=items.map((a,i)=>'<article class="story"><div class="rank">'+String(i+1).padStart(2,"0")+'</div><div><h3><a href="'+esc(articleUrl(a))+'">'+esc(a.title)+'</a></h3><div class="meta"><span class="tag">'+esc(a.source||"Original Publisher")+'</span><span>'+dateLabel(a.date)+'</span></div></div></article>').join("")
   }else if(sportView==="table"){
    const r=await fetch("https://site.api.espn.com/apis/v2/sports/soccer/"+currentLeague+"/standings");
@@ -210,10 +210,10 @@ async function loadSports(){
    const r=await fetch("https://site.api.espn.com/apis/site/v2/sports/soccer/"+currentLeague+"/scoreboard?dates="+fmt(start)+"-"+fmt(end));
    if(!r.ok)throw Error("scoreboard");const j=await r.json();const events=j.events||[];
    const matches=events.filter(e=>{const d=new Date(e.date);return sportView==="past"?d<now&&(e.status?.type?.completed||e.status?.type?.state==="post"):d>=now||e.status?.type?.state==="in"});
-   if(!matches.length){box.innerHTML='<div class="empty">لا توجد مباريات متاحة في هذه الفترة حالياً.</div>';return}
-   box.innerHTML=matches.sort((a,b)=>new Date(a.date)-new Date(b.date)).map(e=>{const comp=e.competitions?.[0],teams=comp?.competitors||[],home=teams.find(t=>t.homeAway==="home")||teams[0],away=teams.find(t=>t.homeAway==="away")||teams[1],status=e.status?.type?.shortDetail||e.status?.type?.detail||"";return '<article class="story"><div class="rank">⚽</div><div><h3>'+esc(home?.team?.displayName||"الفريق الأول")+' <span style="color:var(--gold)">'+(home?.score??"—")+' - '+(away?.score??"—")+'</span> '+esc(away?.team?.displayName||"الفريق الثاني")+'</h3><div class="meta"><span>'+new Intl.DateTimeFormat("ar-SA",{dateStyle:"medium",timeStyle:"short",timeZone:"Asia/Riyadh"}).format(new Date(e.date))+'</span><span class="tag">'+esc(status)+'</span></div></div></article>'}).join("");
+   if(!matches.length){box.innerHTML='<div class="empty">No matches are currently available for this period.</div>';return}
+   box.innerHTML=matches.sort((a,b)=>new Date(a.date)-new Date(b.date)).map(e=>{const comp=e.competitions?.[0],teams=comp?.competitors||[],home=teams.find(t=>t.homeAway==="home")||teams[0],away=teams.find(t=>t.homeAway==="away")||teams[1],status=e.status?.type?.shortDetail||e.status?.type?.detail||"";return '<article class="story"><div class="rank">⚽</div><div><h3>'+esc(home?.team?.displayName||"Home team")+' <span style="color:var(--gold)">'+(home?.score??"—")+' - '+(away?.score??"—")+'</span> '+esc(away?.team?.displayName||"Away team")+'</h3><div class="meta"><span>'+new Intl.DateTimeFormat("ar-SA",{dateStyle:"medium",timeStyle:"short",timeZone:"Asia/Riyadh"}).format(new Date(e.date))+'</span><span class="tag">'+esc(status)+'</span></div></div></article>'}).join("");
   }
- }catch(err){box.innerHTML='<div class="empty">تعذر تحميل بيانات هذه المسابقة من المصدر حالياً. جرّب التحديث لاحقاً.</div>'}
+ }catch(err){box.innerHTML='<div class="empty">Unable to load this competition's data from the source. Please try again later.</div>'}
 }
 $("categories").addEventListener("click",e=>{const b=e.target.closest("button[data-economy]");if(!b)return;e.preventDefault();document.querySelectorAll("#categories .chip").forEach(x=>x.classList.toggle("active",x===b));$("sportsPanel").style.display="none";$("offersPanel").style.display="none";$("marketPanel").hidden=false;$("feed").style.display="none";$("loadMore").style.display="none";$("feedTitle").textContent="";$("updated").textContent="";$("marketPanel").scrollIntoView({behavior:"smooth",block:"start"})});
 $("categories").addEventListener("click",e=>{const b=e.target.closest("button[data-offers]");if(!b)return;document.querySelectorAll("#categories .chip").forEach(x=>x.classList.toggle("active",x===b));$("sportsPanel").style.display="none";$("offersPanel").style.display="block";$("feed").style.display="none";$("loadMore").style.display="none";$("feedTitle").textContent="";$("updated").textContent="";loadOffers();$("offersPanel").scrollIntoView({behavior:"smooth",block:"start"})});
@@ -343,7 +343,7 @@ async function loadCachedMarketData(){
 
 function getFavs(){try{return JSON.parse(localStorage.getItem("saudiMarketFavorites")||"[]").filter(x=>/^\d{4,5}$/.test(x))}catch{return []}}
 function saveFavs(a){localStorage.setItem("saudiMarketFavorites",JSON.stringify([...new Set(a)].slice(0,20)));renderFavs()}
-async function renderFavs(){const box=$("stockList"),a=getFavs();if(!a.length){box.innerHTML='<span class="market-note">لا توجد أسهم مضافة بعد.</span>';return}box.innerHTML="";for(const code of a){const el=document.createElement("div");el.className="market-stock";el.textContent=code+".SR · جارٍ التحميل";const del=document.createElement("button");del.textContent="×";del.title="حذف من المفضلة";del.onclick=()=>saveFavs(getFavs().filter(x=>x!==code));el.appendChild(del);box.appendChild(el);try{const q=await yahooQuote(code+".SR");el.firstChild.textContent=code+".SR · "+fmtMarket(q.price)+" "+q.currency+" · "+(q.change>0?"+":"")+fmtMarket(q.change)+"%";el.title="المصدر: "+q.source+" · "+q.time.toLocaleString("ar-SA")}catch{el.firstChild.textContent=code+".SR · السعر غير متاح من المصدر"}}}
+async function renderFavs(){const box=$("stockList"),a=getFavs();if(!a.length){box.innerHTML='<span class="market-note">No stocks have been added yet.</span>';return}box.innerHTML="";for(const code of a){const el=document.createElement("div");el.className="market-stock";el.textContent=code+".SR · جارٍ التحميل";const del=document.createElement("button");del.textContent="×";del.title="حذف من المفضلة";del.onclick=()=>saveFavs(getFavs().filter(x=>x!==code));el.appendChild(del);box.appendChild(el);try{const q=await yahooQuote(code+".SR");el.firstChild.textContent=code+".SR · "+fmtMarket(q.price)+" "+q.currency+" · "+(q.change>0?"+":"")+fmtMarket(q.change)+"%";el.title="المصدر: "+q.source+" · "+q.time.toLocaleString("ar-SA")}catch{el.firstChild.textContent=code+".SR · السعر غير متاح من المصدر"}}}
 async function addStock(){const raw=$("stockSearch").value.trim();const m=raw.match(/\d{4,5}/);if(!m){$("stockResults").textContent="أدخل رمز تداول من 4 أو 5 أرقام.";return}const code=m[0];$("stockResults").textContent="جارٍ التحقق من الرمز…";try{const q=await yahooQuote(code+".SR");saveFavs([...getFavs(),code]);$("stockResults").textContent=code+".SR · "+fmtMarket(q.price)+" · تمت الإضافة";$("stockSearch").value=""}catch{$("stockResults").textContent="لم نتمكن من التحقق من السهم حالياً. لن نضيف رمزاً غير متحقق."}}
 function showMarketDetails(key){const q=marketCache[key];$("marketModalTitle").textContent=marketNames[key]||"تفاصيل السعر";$("marketModalMeta").textContent=q?.price!=null?"آخر سعر: "+fmtMarket(q.price)+" · "+(q.change>0?"+":"")+fmtMarket(q.change)+"% · "+(q.time?.toLocaleString("ar-SA")||"وقت غير متاح"):"لا تتوفر قيمة موثقة حالياً لهذا العنصر."; $("marketModalSource").textContent="المصدر: "+(q?.source||marketSources[key]||"غير محدد")+". الأسعار الرسمية الثابتة لا تُعرض حتى يتوفر جدول موثق وتاريخ سريان.";const c=$("marketChart"),ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);const vals=q?.history||[];if(vals.length>1){const lo=Math.min(...vals),hi=Math.max(...vals),span=hi-lo||1;ctx.beginPath();vals.forEach((v,i)=>{const x=20+i*(c.width-40)/(vals.length-1),y=c.height-20-(v-lo)/span*(c.height-40);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.strokeStyle="#a5b77a";ctx.lineWidth=3;ctx.stroke()}else{ctx.fillStyle="#a6b09b";ctx.font="14px sans-serif";ctx.fillText("لا تتوفر بيانات تاريخية للرسم حالياً",120,95)}$("marketModal").classList.add("open")}
 $("marketRefresh").addEventListener("click",()=>loadMarket());$("stockAdd").addEventListener("click",addStock);$("stockSearch").addEventListener("keydown",e=>{if(e.key==="Enter")addStock()});$("marketClose").addEventListener("click",()=>$("marketModal").classList.remove("open"));$("marketModal").addEventListener("click",e=>{if(e.target===$("marketModal"))$("marketModal").classList.remove("open")});$("marketStrip").addEventListener("click",e=>{const tile=e.target.closest("[data-market]");if(tile)showMarketDetails(tile.dataset.market)});renderFavs();loadCachedMarketData();
