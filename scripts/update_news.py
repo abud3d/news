@@ -281,6 +281,9 @@ def canonical_url(value):
   return urllib.parse.urlunsplit((p.scheme.lower(),p.netloc.lower(),p.path.rstrip("/"),query,""))
  except Exception: return (value or "").strip().lower()
 
+def key_for_url(item):
+ return canonical_url(item.get("url",""))
+
 def title_key(item):
  title=clean(item.get("title","")).lower()
  title=title.translate(str.maketrans({"أ":"ا","إ":"ا","آ":"ا","ى":"ي","ة":"ه","ـ":""}))
