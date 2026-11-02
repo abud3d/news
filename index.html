@@ -149,7 +149,7 @@ let cachedNews=null;
 async function readNewsCache(){const r=await fetch("data/news.json?ts="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("news cache "+r.status);const j=await r.json();if(!j||!j.categories)throw Error("invalid news cache");cachedNews=j;return j}
 function cachedCategory(key){return cachedNews?.categories?.[key]?.items||[]}
 function relativeTime(s){if(!s)return "غير معروف";const d=new Date(s);if(isNaN(d))return "غير معروف";const sec=Math.max(0,Math.floor((Date.now()-d.getTime())/1000));if(sec<60)return "الآن";if(sec<3600)return "منذ "+Math.floor(sec/60)+" دقيقة";if(sec<86400)return "منذ "+Math.floor(sec/3600)+" ساعة";if(sec<2592000)return "منذ "+Math.floor(sec/86400)+" يوم";return new Intl.DateTimeFormat("ar-SA",{dateStyle:"medium",timeStyle:"short"}).format(d)}
-function setUpdateLabel(id,t,prefix){const el=$(id);if(!el)return;const count=id==="updated"&&cachedNews&&Number.isFinite(Number(cachedNews.fetched_news_count))?" · عدد الأخبار المسحوبة: "+Number(cachedNews.fetched_news_count):"";el.textContent=prefix+relativeTime(t)+count;el.title=t?new Intl.DateTimeFormat("ar-SA",{dateStyle:"medium",timeStyle:"short"}).format(new Date(t)):""}
+function setUpdateLabel(id,t,prefix){const el=$(id);if(!el)return;const count=id==="updated"&&cachedNews&&Number.isFinite(Number(cachedNews.fetched_news_count))?" · أخبار حديثة جرى جلبها: "+Number(cachedNews.fetched_news_count):"";const latest=id==="updated"&&cachedNews?.latest_news_at?" · أحدث خبر منشور: "+relativeTime(cachedNews.latest_news_at):"";el.textContent=prefix+relativeTime(t)+count+latest;el.title=t?new Intl.DateTimeFormat("ar-SA",{dateStyle:"medium",timeStyle:"short"}).format(new Date(t)):""}
 function cacheTime(){const t=cachedNews?.updated_at;return t?relativeTime(t):"لم يكتمل أول تحديث بعد"}
 let cachedOffersUpdatedAt=null;
 setInterval(()=>{if(cachedNews?.updated_at&&$("updated").textContent)setUpdateLabel("updated",cachedNews.updated_at,"آخر تحديث للمستودع ");if(cachedOffersUpdatedAt&&$("offersUpdated").textContent)setUpdateLabel("offersUpdated",cachedOffersUpdatedAt,"آخر تحديث ")},60000)
@@ -177,8 +177,9 @@ async function loadNews(){
   articles=items.slice().sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
   render();
   setUpdateLabel("updated",cache.updated_at,"آخر تحديث للمستودع ");
-  const stale=cache.categories?.[activeQuery]?.status==="stale";
-  const sourceStates=Object.values(cache.source_status||{});const sourceOk=sourceStates.filter(x=>x.status==="ok"||x.status==="ok_empty").length;const sourceTotal=sourceStates.length;const sourceHealth=sourceTotal?" · المصادر المفحوصة "+sourceOk+"/"+sourceTotal:"";$("feedStatus").textContent=activeCity?(cache.city_news?.[cityCodes[activeCity]]?.status==="stale"?"تعذر تحديث أخبار المنطقة؛ نعرض آخر نسخة محفوظة.":"أخبار المناطق من المصادر الصحفية المحددة"):(stale?"تعذر تحديث هذا القسم؛ نعرض آخر نسخة محفوظة.":"تحديث الموجز آلياً كل 15 دقيقة"+sourceHealth);
+  const stale=activeCity?cache.city_news?.[cityCodes[activeCity]]?.status==="stale":cache.categories?.[activeQuery]?.status==="stale";
+  const sourceStates=Object.values(cache.source_status||{});const sourceOk=sourceStates.filter(x=>x.status==="ok"||x.status==="ok_empty").length;const sourceTotal=sourceStates.length;const sourceHealth=sourceTotal?" · مصادر بها أخبار حديثة "+sourceOk+"/"+sourceTotal:"";const staleCount=(cache.health?.stale_categories||[]).length;
+  $("feedStatus").textContent=stale?"تنبيه: لم تصل أخبار حديثة لهذا القسم؛ نعرض آخر نسخة محفوظة.":(activeCity?"أخبار المناطق · فحص آلي كل 15 دقيقة": "محاولة فحص آلية كل 15 دقيقة"+sourceHealth+(staleCount?" · تنبيه: "+staleCount+" أقسام لم يصلها محتوى حديث":""));
  }catch(e){
   if(articles.length){render();$("feedStatus").textContent="تعذر تحديث النسخة؛ نعرض آخر أخبار محمّلة."}
   else $("feed").innerHTML='<div class="empty">لم تصل بيانات هذا القسم بعد. سيظهر المحتوى بعد أول تحديث ناجح للمستودع.</div>';
