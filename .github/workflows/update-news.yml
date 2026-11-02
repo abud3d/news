@@ -40,11 +40,36 @@ jobs:
               python scripts/bump_version.py
             fi
           fi
+      - name: Compile update scripts
+        run: python -m py_compile scripts/update_news.py scripts/update_offers.py
       - name: Fetch feeds and preserve previous data on failures
         run: python scripts/update_news.py
+      - name: Validate news cache before commit
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("data/news.json")
+          data = json.loads(p.read_text(encoding="utf-8"))
+          assert isinstance(data.get("categories"), dict) and len(data["categories"]) >= 5, "categories missing"
+          assert data.get("updated_at"), "updated_at missing"
+          assert isinstance(data.get("health"), dict), "freshness report missing"
+          assert "latest_news_at" in data, "latest news timestamp missing"
+          total = 0
+          for name, section in data["categories"].items():
+              assert isinstance(section.get("items", []), list), f"invalid items: {name}"
+              for item in section.get("items", []):
+                  assert item.get("title") and item.get("url"), f"invalid article: {name}"
+                  total += 1
+          assert total > 0, "all categories are empty"
+          print(f"VALID cache: {len(data['categories'])} categories, {total} article entries; latest={data.get('latest_news_at')}")
+          print(f"STALE categories: {len(data['health'].get('stale_categories', []))}")
+          PY
       - name: Fetch active store flyers from SnapFlyer
         continue-on-error: true
         run: python scripts/update_offers.py
+      - name: Check generated changes
+        run: git diff --check
       - name: Commit updated cache and version
         run: |
           if git diff --quiet -- data/news.json data/offers.json index.html; then
