@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import json, os, re, time, urllib.parse, urllib.request, urllib.error, xml.etree.ElementTree as ET
 from html.parser import HTMLParser
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
+from email.utils import parsedate_to_datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from html import unescape
 
@@ -254,16 +255,65 @@ def fetch_weather(city):
  desc += " | ".join(f"{daily['time'][i]}: العظمى {daily['temperature_2m_max'][i]}° والصغرى {daily['temperature_2m_min'][i]}°، احتمال المطر {daily['precipitation_probability_max'][i]}%" for i in range(min(3,len(daily.get("time",[])))))
  return {"title":title,"url":"https://open-meteo.com/","source":"Open-Meteo","date":cur.get("time",""),"description":desc}
 
-def key_for_url(x):
- return (x.get("url") or "").strip().lower()
+MAX_ARTICLE_AGE_DAYS=14
+
+def parse_article_date(value):
+ if not value: return None
+ try:
+  d=datetime.fromisoformat(str(value).replace("Z","+00:00"))
+ except (TypeError,ValueError):
+  try: d=parsedate_to_datetime(str(value))
+  except (TypeError,ValueError,OverflowError): return None
+ if d is None: return None
+ if d.tzinfo is None: d=d.replace(tzinfo=timezone.utc)
+ return d.astimezone(timezone.utc)
+
+def canonical_url(value):
+ try:
+  p=urllib.parse.urlsplit((value or "").strip())
+  if not p.scheme or not p.netloc: return ""
+  ignored=("utm_","fbclid","gclid","mc_cid","mc_eid")
+  query=urllib.parse.urlencode(sorted((k,v) for k,v in urllib.parse.parse_qsl(p.query,keep_blank_values=True)
+                                      if not k.lower().startswith(ignored)))
+  return urllib.parse.urlunsplit((p.scheme.lower(),p.netloc.lower(),p.path.rstrip("/"),query,""))
+ except Exception: return (value or "").strip().lower()
+
+def title_key(item):
+ title=clean(item.get("title","")).lower()
+ title=title.translate(str.maketrans({"أ":"ا","إ":"ا","آ":"ا","ى":"ي","ة":"ه","ـ":""}))
+ return re.sub(r"[^0-9a-z\u0600-\u06ff]+","",title)
+
+def item_keys(item):
+ keys=[]
+ url=canonical_url(item.get("url",""))
+ title=title_key(item)
+ if url: keys.append("url:"+url)
+ if len(title)>=12: keys.append("title:"+title)
+ return keys
+
+def is_recent_article(item, now=None):
+ d=parse_article_date(item.get("date"))
+ if d is None: return True
+ now=now or datetime.now(timezone.utc)
+ return now-timedelta(days=MAX_ARTICLE_AGE_DAYS) <= d <= now+timedelta(days=1)
 
 def merge(old, new, limit=50):
  seen=set(); out=[]
  for x in new+old:
-  k=key_for_url(x) or re.sub(r"\W+","",x.get("title","").lower())
-  if not k or k in seen: continue
-  seen.add(k); out.append(x)
+  keys=item_keys(x)
+  if not keys or any(k in seen for k in keys): continue
+  seen.update(keys); out.append(x)
+ out.sort(key=lambda x: parse_article_date(x.get("date")) or datetime.min.replace(tzinfo=timezone.utc),reverse=True)
  return out[:limit]
+
+def mark_fresh_items(old_items, fresh_items):
+ old_keys={key for item in old_items for key in item_keys(item)}
+ accepted=[item for item in fresh_items if is_recent_article(item)]
+ marked=[]
+ for item in accepted:
+  keys=item_keys(item)
+  marked.append({**item,"is_new":not any(k in old_keys for k in keys)})
+ return marked
 
 try:
  with open(OUT,encoding="utf-8") as f: previous=json.load(f)
@@ -286,13 +336,22 @@ all_editorial=[x for rows in source_cache.values() for x in rows]
 def category(key, fn):
  old=previous.get("categories",{}).get(key,{})
  try:
-  fresh=fn()
-  fresh=enrich_excerpts(fresh)
-  register_fetched(fresh)
+  raw_fresh=fn()
+  fresh=enrich_excerpts(raw_fresh)
   old_items=[{**item,"is_new":False} for item in old.get("items",[])]
-  old_keys={key_for_url(item) or re.sub(r"\\W+","",item.get("title","").lower()) for item in old_items}
-  fresh=[{**item,"is_new":(key_for_url(item) or re.sub(r"\\W+","",item.get("title","").lower())) not in old_keys} for item in fresh]
-  result["categories"][key]={"items":merge(old_items,fresh),"updated_at":result["updated_at"],"status":"ok" if fresh else "ok_empty","new_items":sum(1 for item in fresh if item["is_new"])}
+  fresh=mark_fresh_items(old_items,fresh)
+  register_fetched(fresh)
+  combined=merge(old_items,fresh)
+  genuinely_new=sum(1 for item in fresh if item.get("is_new"))
+  if fresh:
+   status="ok"; updated=result["updated_at"]; error=None
+  else:
+   status="stale" if old_items else "unavailable"
+   updated=old.get("updated_at","")
+   error="لم يصل أي خبر حديث خلال آخر 14 يوماً؛ تم الاحتفاظ بالنسخة السابقة."
+   errors.append(key+": "+error)
+  result["categories"][key]={"items":combined,"updated_at":updated,"status":status,"new_items":genuinely_new}
+  if error: result["categories"][key]["error"]=error
  except Exception as e:
   errors.append(key+": "+str(e))
   result["categories"][key]={"items":[{**item,"is_new":False} for item in old.get("items",[])],"updated_at":old.get("updated_at",""),"status":"stale" if old.get("items") else "unavailable","error":str(e)[:180]}
@@ -457,12 +516,15 @@ def refresh_city_feed(kind, code, query):
    # استبعاد صحيفة الرياض وجريدة الرياض كمصدر، لا ككلمة في عنوان الخبر.
    fresh=[item for item in fresh if not is_riyadh_newspaper(item)]
   old_items=[{**item,"is_new":False} for item in old.get("items",[])]
-  old_keys={key_for_url(item) or re.sub(r"\\W+","",item.get("title","").lower()) for item in old_items}
-  fresh=[{**item,"is_new":(key_for_url(item) or re.sub(r"\\W+","",item.get("title","").lower())) not in old_keys} for item in fresh]
+  fresh=mark_fresh_items(old_items,fresh)
+  register_fetched(fresh)
   combined=merge(old_items,fresh)
   if code=="Riyadh":
    combined=[item for item in combined if not is_riyadh_newspaper(item)]
-  data={"items":combined,"updated_at":result["updated_at"],"status":"ok" if fresh else "ok_empty","new_items":len(fresh)}
+  data={"items":combined,"updated_at":result["updated_at"] if fresh else old.get("updated_at",""),
+        "status":"ok" if fresh else ("stale" if old_items else "unavailable"),
+        "new_items":sum(1 for item in fresh if item.get("is_new"))}
+  if not fresh: data["error"]="لم يصل أي خبر حديث خلال آخر 14 يوماً؛ تم الاحتفاظ بالنسخة السابقة."
   return (kind,code,data,None)
  except Exception as e:
   data={"items":[{**item,"is_new":False} for item in old.get("items",[])],"updated_at":old.get("updated_at",""),"status":"stale" if old.get("items") else "unavailable","error":str(e)[:180]}
@@ -491,6 +553,21 @@ with ThreadPoolExecutor(max_workers=5) as pool:
    result[kind][code]=data
    if error: errors.append(kind+" "+code+": "+str(error))
 result["fetched_news_count"]=len(fetched_news_keys)
+all_published_items=[]
+for section in (result.get("categories",{}),result.get("city_news",{}),result.get("weather_news",{})):
+ for data in section.values():
+  all_published_items.extend(data.get("items",[]))
+dated=[parse_article_date(item.get("date")) for item in all_published_items]
+dated=[d for d in dated if d is not None]
+result["latest_news_at"]=max(dated).isoformat() if dated else None
+result["health"]={
+ "checked_at":result["updated_at"],
+ "recent_items_fetched":len(fetched_news_keys),
+ "latest_news_at":result["latest_news_at"],
+ "stale_categories":[k for k,v in result["categories"].items() if v.get("status") in ("stale","unavailable")],
+ "unavailable_sources":[k for k,v in result["source_status"].items() if v.get("status") in ("stale","unavailable")],
+ "errors_count":len(errors)
+}
 result["errors"]=errors
 with open(OUT,"w",encoding="utf-8") as f: json.dump(result,f,ensure_ascii=False,indent=2)
 print("Updated",len(result["categories"]),"feeds and",len(result["weather"]),"weather locations; errors:",len(errors))
