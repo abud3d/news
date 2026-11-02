@@ -58,6 +58,9 @@ export default {
   },
   async fetch(request, env) {
     if (request.method !== "GET") return new Response("Method not allowed", { status: 405 });
+    if (!env.WATCHDOG_KEY || request.headers.get("Authorization") !== "Bearer " + env.WATCHDOG_KEY) {
+      return new Response("Unauthorized", { status: 401 });
+    }
     try {
       const result = await checkNews(env);
       return Response.json(result, { headers: { "Cache-Control": "no-store" } });
