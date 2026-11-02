@@ -1,0 +1,36 @@
+name: Verify published news cache
+on:
+  workflow_run:
+    workflows: ["Update cached news"]
+    types: [completed]
+permissions:
+  contents: read
+jobs:
+  verify-pages:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout latest main cache
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Wait for GitHub Pages to publish the same cache
+        run: |
+          expected="$(python -c 'import json; print(json.load(open("data/news.json", encoding="utf-8"))["updated_at"])')"
+          echo "Expected cache timestamp: $expected"
+          for attempt in $(seq 1 24); do
+            if curl -fsS "https://abud3d.github.io/news/data/news.json?verify=$(date +%s)" -o /tmp/published-news.json; then
+              actual="$(python -c 'import json; print(json.load(open("/tmp/published-news.json", encoding="utf-8"))["updated_at"])' 2>/dev/null || true)"
+              if [ "$actual" = "$expected" ]; then
+                echo "PUBLISHED_OK: live Pages cache matches repository data."
+                exit 0
+              fi
+              echo "Waiting for Pages: published=$actual expected=$expected"
+            else
+              echo "Pages cache is not reachable yet (attempt $attempt)."
+            fi
+            sleep 15
+          done
+          echo "::error::GitHub Pages did not publish the latest news cache within six minutes."
+          exit 1
