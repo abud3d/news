@@ -82,3 +82,31 @@ jobs:
           git commit -m "[skip ci] chore: refresh cached news and offers"
           git pull --rebase origin main
           git push
+
+  deploy:
+    needs: update
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - name: Checkout latest committed site and cache
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload complete site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Deploy updated news site
+        id: deployment
+        uses: actions/deploy-pages@v4
