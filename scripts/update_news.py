@@ -188,7 +188,10 @@ def fetch_source_registry():
    rows=fetch_google("site:"+cfg["domain"]+" أخبار السعودية")
   # بحث Google News مقيد بـ site:domain؛ روابط RSS قد تكون روابط تحويل news.google.com وليست نطاق الناشر مباشرة.
   for x in rows: x["source"]=name
-  return name,rows,{"status":"ok" if rows else "ok_empty","method":method,"items":len(rows),"checked_at":datetime.now(timezone.utc).isoformat()}
+  recent_rows=[x for x in rows if is_recent_article(x)]
+  state="ok" if recent_rows else ("stale" if rows else "ok_empty")
+  return name,rows,{"status":state,"method":method,"items":len(recent_rows),"checked_at":datetime.now(timezone.utc).isoformat(),
+                    "fetched_items":len(rows)}
  with ThreadPoolExecutor(max_workers=4) as pool:
   futures={pool.submit(one,n,c):n for n,c in SOURCE_REGISTRY.items()}
   for f in as_completed(futures):
@@ -511,7 +514,6 @@ def refresh_city_feed(kind, code, query):
   if clubs:
    club_query=" OR ".join('"'+club+'"' for club in clubs)
    fresh+=editorial_query("("+club_query+") (نادي OR مباراة OR دوري OR فريق OR رياضة)")
-  register_fetched(fresh)
   if code=="Riyadh":
    # استبعاد صحيفة الرياض وجريدة الرياض كمصدر، لا ككلمة في عنوان الخبر.
    fresh=[item for item in fresh if not is_riyadh_newspaper(item)]
