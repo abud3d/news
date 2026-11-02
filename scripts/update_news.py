@@ -477,7 +477,10 @@ for target_key in editorial_keys:
   if key_for_url(item) not in old_keys and "is_new" not in item: item["is_new"]=True
  current["items"]=combined
  current["new_items"]=sum(1 for item in combined if item.get("is_new"))
- current["status"]="ok" if combined else current.get("status","ok_empty")
+ if combined and current.get("status") not in ("stale","unavailable"):
+  current["status"]="ok"
+ elif not combined:
+  current["status"]=current.get("status","ok_empty")
  result["categories"][target_key]=current
  print("TOPIC_CLASSIFIER:",target_key,"items:",len(combined),"added:",len(additions))
 # الرياضة: بحث مقيد بالمصادر الرياضية والأندية، مع موجزات الأقسام الرياضية المتاحة.
