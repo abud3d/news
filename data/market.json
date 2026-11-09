@@ -2,7 +2,7 @@
   "provider": "Yahoo Finance",
   "source_url": "https://finance.yahoo.com/",
   "timezone": "Asia/Riyadh",
-  "updated_at": "2026-11-08T18:04:24+00:00",
+  "updated_at": "2026-11-09T22:41:51+00:00",
   "indices": {},
   "markets": {
     "TASI": {
@@ -45,33 +45,33 @@
     },
     "brent": {
       "symbol": "BZ=F",
-      "price": 98.31999969482422,
-      "change_percent": 0.03052068269147401,
+      "price": 92.16999816894531,
+      "change_percent": -6.255087006680143,
       "currency": "USD",
-      "timestamp": "2026-11-06T05:00:00+00:00",
+      "timestamp": "2026-11-09T05:00:00+00:00",
       "source": "Yahoo Finance (query1.finance.yahoo.com)",
       "history": [
-        103.5999984741211,
         94.62000274658203,
         98.29000091552734,
-        98.31999969482422
+        98.31999969482422,
+        92.16999816894531
       ]
     },
     "gold": {
       "symbol": "GC=F",
-      "price": 4074.89990234375,
-      "change_percent": -0.9383760217880152,
+      "price": 4149.5,
+      "change_percent": 1.8307222126693823,
       "currency": "USD",
-      "timestamp": "2026-11-06T05:00:00+00:00",
+      "timestamp": "2026-11-09T05:00:00+00:00",
       "source": "Yahoo Finance (query1.finance.yahoo.com)",
       "history": [
-        3940.39990234375,
         4073.0,
         4113.5,
-        4074.89990234375
+        4074.89990234375,
+        4149.5
       ],
-      "gram24_sar_estimate": 491.2915276979281,
-      "gram21_sar_estimate": 429.8800867356871,
+      "gram24_sar_estimate": 500.28571082445677,
+      "gram21_sar_estimate": 437.7499969713997,
       "conversion_note": "تقديري قبل المصنعية؛ تحويل على أساس 3.75 ريال لكل دولار"
     }
   }
